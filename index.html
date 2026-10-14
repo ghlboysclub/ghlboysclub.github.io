@@ -34,6 +34,24 @@
   <script>
     // "Keep me signed in": the app tells this page its device key, and this page keeps it in its own storage and
     // in its address (?k=…), so a phone home-screen icon opens straight in. The key goes back to the app on load.
+    // Home-screen app on iPhone: the page height leaves out the status bar (and on some models iPhone reports that
+    // as 0), so the app stopped short and a strip showed at the bottom. Size the app to the real screen height instead.
+    (function () {
+      var standalone = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+      if (!standalone) return;
+      function fit() {
+        var portrait = window.matchMedia('(orientation: portrait)').matches;
+        var full = portrait ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height);
+        var h = Math.max(window.innerHeight, full) + 'px';
+        document.documentElement.style.height = document.body.style.height = h;
+        var f = document.getElementById('app');
+        if (f) { f.style.bottom = 'auto'; f.style.height = h; }
+      }
+      fit();
+      window.addEventListener('resize', fit);
+      window.addEventListener('orientationchange', function () { setTimeout(fit, 300); });
+    })();
+
     var APP_URL = 'https://script.google.com/macros/s/AKfycbzujaHNo4PGhxX0BiqqqmSsyK4xbLjaq_my-yLHNrcYI8RnsLuhaHwSBAOqmTA3dKoZuQ/exec';
     var KEY_NAME = 'GHL_DEVICE_KEY';
     var q = new URLSearchParams(location.search);
