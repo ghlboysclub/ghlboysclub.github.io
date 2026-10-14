@@ -10,6 +10,17 @@
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
   <meta name="robots" content="noindex, nofollow">
+  <script>
+    // Front door start-up: the app-shaped loading screen is drawn at once (Google takes a few seconds to load the app),
+    // in the theme and account type used last time, and stays until the app says it is ready.
+    (function () {
+      var h = document.documentElement, t = '', r = '';
+      try { t = localStorage.getItem('GHL_FD_THEME') || ''; r = localStorage.getItem('GHL_FD_ROLE') || ''; } catch (e) {}
+      if (!t) t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+      h.setAttribute('data-theme', t); h.classList.add('boot');
+      if (r === 'partner') h.classList.add('boot-partner');
+    })();
+  </script>
   <title>GHL Boys Club</title>
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -27,9 +38,154 @@
       html, body { height: calc(100vh + env(safe-area-inset-top)); }
       iframe { bottom: auto; height: calc(100vh + env(safe-area-inset-top)); }
     }
+    /* ---------- start-up loading screen (exact copy of the app's own; see markup) ---------- */
+    #bootScreen { display: none; }
+    html.boot #loginContainer, html.boot #resumeNote { visibility: hidden !important; }
+    html.boot #bootScreen {
+      display: block; position: fixed; inset: 0; z-index: 50; overflow: hidden; pointer-events: none; box-sizing: border-box;
+      --bs-win: #000; --bs-group: #1c1c1e; --bs-side: #262626; --bs-fill: rgba(255,255,255,0.07); --bs-hi: rgba(255,255,255,0.17); --bs-line: rgba(255,255,255,0.09);
+      background: var(--bs-win);
+    }
+    html.boot[data-theme="light"] #bootScreen { --bs-win: #f2f2f7; --bs-group: #fff; --bs-side: #ebebed; --bs-fill: rgba(0,0,0,0.06); --bs-hi: rgba(0,0,0,0.02); --bs-line: rgba(0,0,0,0.08); }
+    #bootScreen * { box-sizing: border-box; }
+    @keyframes bsSweep { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+    #bootScreen i { display: block; flex: 0 0 auto; border-radius: 7px; background-image: linear-gradient(90deg, var(--bs-fill) 0 35%, var(--bs-hi) 50%, var(--bs-fill) 65% 100%);
+      background-size: 200% 100%; animation: bsSweep 1.6s linear infinite; }
+    #bootScreen span { flex: 1 1 auto; }
+    #bootScreen .bs-a-desk, #bootScreen .bs-a-phone, #bootScreen .bs-p-desk, #bootScreen .bs-p-phone { display: none; }
+    #bootScreen .bs-c { width: 36px; height: 36px; border-radius: 50%; }
+
+    /* phones (≤768px) */
+    @media (max-width: 768px) {
+      html.boot:not(.boot-partner) #bootScreen .bs-a-phone, html.boot.boot-partner #bootScreen .bs-p-phone { display: flex; }
+      #bootScreen .bs-a-phone, #bootScreen .bs-p-phone { flex-direction: column; gap: 14px; height: 100%; padding: calc(14px + env(safe-area-inset-top)) 12px 0; }
+      #bootScreen .bs-a-phone > *, #bootScreen .bs-p-phone > * { flex-shrink: 0; }   /* never squeezed (same sizes as the app) */
+      #bootScreen .bs-p-phone { padding-left: calc(2.5vw + 6px); padding-right: calc(2.5vw + 6px); }
+      #bootScreen .bs-bar { display: flex; align-items: center; gap: 4px; height: 52px; padding: 0 8px; border-radius: 26px; background: var(--bs-group); border: 0.5px solid var(--bs-line); }
+      #bootScreen .bs-pill { width: 64px; height: 32px; border-radius: 16px; margin-left: 6px; }
+      #bootScreen .bs-p-phone .bs-bar { padding-left: 16px; }
+      #bootScreen .bs-pt { width: 120px; height: 18px; border-radius: 6px; }
+      #bootScreen .bs-list { border-radius: 18px; background: var(--bs-group); overflow: hidden; border: 0.5px solid var(--bs-line); }
+      #bootScreen .bs-list > div { display: grid; grid-template-columns: 36px 1fr 88px; grid-template-rows: auto auto; column-gap: 12px; row-gap: 6px; align-items: center;
+        padding: 11px 14px; min-height: 56px; border-bottom: 0.5px solid var(--bs-line); }
+      #bootScreen .bs-list > div:last-child { border-bottom: none; }
+      #bootScreen .bs-ic { grid-row: 1 / 3; width: 36px; height: 36px; border-radius: 9px; }
+      #bootScreen .bs-l1 { height: 12px; width: 60%; }
+      #bootScreen .bs-l2 { grid-column: 2; height: 9px; width: 40%; }
+      #bootScreen .bs-amt { grid-column: 3; grid-row: 1; height: 13px; }
+      #bootScreen .bs-card { border-radius: 18px; background: var(--bs-group); border: 0.5px solid var(--bs-line); padding: 18px 12px 6px; display: flex; flex-direction: column; gap: 10px; flex: 0 0 auto; overflow: hidden; }
+      #bootScreen .bs-ct { width: 225px; max-width: 50%; height: 16px; margin: 0 6px 6px; border-radius: 6px; }
+      #bootScreen .bs-a-phone .bs-card { margin-top: 8px; flex: 1 1 0; min-height: 0; margin-bottom: 12px; gap: 18px; }   /* fills to 12px above the bottom, like the app */
+      #bootScreen .bs-a-phone .bs-ct { margin-bottom: 4px; }
+      #bootScreen .bs-tx { height: 88px; border-radius: 14px; position: relative; flex-shrink: 0; }
+      #bootScreen .bs-pr { height: 56px; border-radius: 14px; }
+      #bootScreen .bs-p-phone .bs-list > div { grid-template-columns: 36px 1fr 96px; }
+      /* same see-through grey boxes as the app's phone loading screen */
+      #bootScreen .bs-bar, #bootScreen .bs-list, #bootScreen .bs-card { background: rgba(127,127,127,0.10); border-color: rgba(127,127,127,0.18); }
+      #bootScreen .bs-p-phone .bs-bar, #bootScreen .bs-p-phone .bs-list, #bootScreen .bs-p-phone .bs-card { background: rgba(127,127,127,0.12); }
+      #bootScreen .bs-list > div { border-bottom-color: rgba(127,127,127,0.18); }
+      #bootScreen .bs-search, #bootScreen .bs-bolt { background: rgba(127,127,127,0.16); border-color: rgba(127,127,127,0.22); }
+      #bootScreen .bs-tx, #bootScreen .bs-pr { background-color: rgba(127,127,127,0.06); border: 0.5px solid rgba(127,127,127,0.16); }
+      #bootScreen .bs-tx::before { content: ''; position: absolute; left: 14px; top: 14px; width: 30px; height: 30px; border-radius: 50%; background: rgba(127,127,127,0.22); }
+      #bootScreen .bs-tx::after { content: ''; position: absolute; left: 54px; right: 14px; top: 18px; height: 54px;
+        background: linear-gradient(rgba(127,127,127,0.24), rgba(127,127,127,0.24)) 0 0 / 46% 13px no-repeat,
+                    linear-gradient(rgba(127,127,127,0.24), rgba(127,127,127,0.24)) 100% 0 / 32% 13px no-repeat,
+                    linear-gradient(rgba(127,127,127,0.15), rgba(127,127,127,0.15)) 0 100% / 34% 10px no-repeat,
+                    linear-gradient(rgba(127,127,127,0.18), rgba(127,127,127,0.18)) 100% 100% / 22% 20px no-repeat; }
+      #bootScreen .bs-pr { position: relative; }
+      #bootScreen .bs-pr::after { content: ''; position: absolute; left: 14px; right: 14px; top: 50%; height: 13px; margin-top: -6.5px;
+        background: linear-gradient(rgba(127,127,127,0.24), rgba(127,127,127,0.24)) 0 0 / 34% 13px no-repeat,
+                    linear-gradient(rgba(127,127,127,0.24), rgba(127,127,127,0.24)) 100% 0 / 30% 13px no-repeat; }
+      #bootScreen .bs-p-phone .bs-card { padding: 16px 12px 16px; gap: 10px; }
+      #bootScreen .bs-p-phone .bs-ct { width: 46%; max-width: none; height: 18px; margin: 0 4px 4px; }
+      #bootScreen .bs-search, #bootScreen .bs-bolt { position: fixed; bottom: calc(14px + env(safe-area-inset-bottom)); height: 50px; border-radius: 25px; border: 0.5px solid var(--bs-line); }
+      #bootScreen .bs-search { left: 20px; right: 80px; }
+      #bootScreen .bs-bolt { right: 20px; width: 50px; }
+    }
+
+    /* computers (>768px) */
+    @media (min-width: 769px) {
+      html.boot #bootScreen { --bs-win: #1e1e1e; --bs-group: #2b2b2b; }
+      html.boot[data-theme="light"] #bootScreen { --bs-win: #f5f5f7; --bs-group: #fff; }
+      html.boot:not(.boot-partner) #bootScreen .bs-a-desk, html.boot.boot-partner #bootScreen .bs-p-desk { display: flex; }
+      /* admin: sidebar + toolbar + 6 cards + table */
+      #bootScreen .bs-a-desk { height: 100%; }
+      #bootScreen .bs-side { position: relative; width: 260px; flex: 0 0 260px; height: 100%; padding: 24px 16px; background: var(--bs-side); box-shadow: 0.5px 0 0 var(--bs-line); overflow: hidden; }
+      #bootScreen .bs-logo { width: 180px; height: 44px; border-radius: 12px; margin: 0 0 22px 6px; }
+      #bootScreen .bs-ni { height: 28px; border-radius: 8px; margin-bottom: 5px; }
+      #bootScreen .bs-grp { margin-top: 20px; }
+      #bootScreen .bs-gt { width: 80px; height: 10px; margin: 0 0 10px 12px; }
+      #bootScreen .bs-prof { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px; padding: 24px 24px 28px;
+        background: linear-gradient(transparent, var(--bs-side) 24px); }
+      #bootScreen .bs-prof > div { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+      #bootScreen .bs-av { width: 40px; height: 40px; border-radius: 50%; }
+      #bootScreen .bs-pl1 { height: 13px; width: 75%; }
+      #bootScreen .bs-pl2 { height: 10px; width: 90%; }
+      #bootScreen .bs-main { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; padding: 24px 32px 32px; }
+      #bootScreen .bs-tb { display: flex; align-items: center; gap: 16px; height: 36px; flex: 0 0 36px; }
+      #bootScreen .bs-cap { width: 74px; height: 36px; border-radius: 999px; }
+      #bootScreen .bs-ttl { width: 120px; height: 22px; margin-left: -4px; }
+      #bootScreen .bs-srch { flex: 1000 1 0; max-width: 400px; min-width: 0; height: 36px; border-radius: 999px; margin-left: 16px; }
+      #bootScreen .bs-mon { width: 150px; height: 36px; border-radius: 999px; }
+      #bootScreen .bs-qa { width: 140px; height: 36px; border-radius: 999px; }
+      #bootScreen .bs-tb .bs-c, #bootScreen .bs-ph .bs-c { border-radius: 999px; }
+      #bootScreen .bs-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-top: 28px; flex: 0 0 auto; }
+      #bootScreen .bs-sc { position: relative; height: 132px; border-radius: 12px; background: var(--bs-group); border: 0.5px solid var(--bs-line); }
+      #bootScreen .bs-sc i { position: absolute; }
+      #bootScreen .bs-sct { left: 17px; top: 24px; width: 100px; height: 16px; }
+      #bootScreen .bs-sci { right: 17px; top: 17px; width: 30px; height: 30px; }
+      #bootScreen .bs-scv { left: 17px; top: 58px; width: 120px; height: 36px; }
+      #bootScreen .bs-scf { left: 17px; top: 101px; width: 80px; height: 14px; }
+      #bootScreen .bs-tbl { margin-top: 32px; flex: 1 1 0; min-height: 0; overflow: hidden; border-radius: 12px; background: var(--bs-group); border: 0.5px solid var(--bs-line);
+        padding: 24px 24px 0; display: flex; flex-direction: column; gap: 8px; }
+      #bootScreen .bs-row { height: 60px; flex: 0 0 60px; }
+      /* partner: centred column, header, 5 cards, sections */
+      #bootScreen .bs-p-desk { flex-direction: column; width: min(1222px, calc(100vw - 48px)); margin: 0 auto; padding-top: 32px; height: 100%; }
+      #bootScreen .bs-ph { display: flex; align-items: center; gap: 8px; height: 56px; flex: 0 0 56px; padding-left: 4px; }
+      #bootScreen .bs-ph .bs-pt { width: 170px; height: 22px; }
+      #bootScreen .bs-pcards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 24px; margin-top: 32px; }
+      #bootScreen .bs-pc { height: 144px; border-radius: 12px; background: var(--bs-group); border: 0.5px solid var(--bs-line); padding: 33px 32px 0; display: flex; flex-direction: column; gap: 8px; }
+      #bootScreen .bs-pcl { width: 120px; height: 14px; }
+      #bootScreen .bs-pcv { width: min(180px, 100%); height: 36px; }
+      #bootScreen .bs-pcc { width: 100px; height: 12px; }
+      #bootScreen .bs-sec { margin-top: 32px; border-radius: 12px; background: var(--bs-group); border: 0.5px solid var(--bs-line); padding: 25px 32px 17px; display: flex; flex-direction: column; gap: 16px; flex: 0 0 auto; }
+      #bootScreen .bs-st { width: 200px; height: 24px; margin-bottom: 0; }
+      #bootScreen .bs-sr { height: 40px; }
+    }
+
+    html.boot #bootScreen { z-index: 10; transition: opacity .25s ease; }
+    html.boot.fd-ready #bootScreen { opacity: 0; }
+    html[data-theme="light"], html[data-theme="light"] body { background: #f2f2f7; }
+    @media (min-width: 769px) { html[data-theme="light"], html[data-theme="light"] body { background: #f5f5f7; } }
   </style>
 </head>
 <body>
+  <div id="bootScreen" aria-hidden="true">
+    <div class="bs-a-desk"><div class="bs-side"><i class="bs-logo"></i><i class="bs-ni"></i><div class="bs-grp"><i class="bs-gt"></i><i class="bs-ni"></i><i class="bs-ni"></i><i class="bs-ni"></i><i class="bs-ni"></i><i class="bs-ni"></i></div><div class="bs-grp"><i class="bs-gt"></i><i class="bs-ni"></i><i class="bs-ni"></i><i class="bs-ni"></i></div><div class="bs-grp"><i class="bs-gt"></i><i class="bs-ni"></i><i class="bs-ni"></i><i class="bs-ni"></i></div><div class="bs-grp"><i class="bs-gt"></i><i class="bs-ni"></i><i class="bs-ni"></i></div><div class="bs-grp"><i class="bs-gt"></i><i class="bs-ni"></i><i class="bs-ni"></i><i class="bs-ni"></i><i class="bs-ni"></i><i class="bs-ni"></i></div><div class="bs-grp"><i class="bs-gt"></i><i class="bs-ni"></i><i class="bs-ni"></i></div><div class="bs-prof"><i class="bs-av"></i><div><i class="bs-pl1"></i><i class="bs-pl2"></i></div></div></div><div class="bs-main">
+        <div class="bs-tb"><i class="bs-cap"></i><i class="bs-ttl"></i><i class="bs-srch"></i><span></span><i class="bs-c"></i><i class="bs-mon"></i><i class="bs-qa"></i><i class="bs-c"></i><i class="bs-c"></i><i class="bs-c"></i></div>
+        <div class="bs-cards"><div class="bs-sc"><i class="bs-sct"></i><i class="bs-sci"></i><i class="bs-scv"></i><i class="bs-scf"></i></div><div class="bs-sc"><i class="bs-sct"></i><i class="bs-sci"></i><i class="bs-scv"></i><i class="bs-scf"></i></div><div class="bs-sc"><i class="bs-sct"></i><i class="bs-sci"></i><i class="bs-scv"></i><i class="bs-scf"></i></div><div class="bs-sc"><i class="bs-sct"></i><i class="bs-sci"></i><i class="bs-scv"></i><i class="bs-scf"></i></div><div class="bs-sc"><i class="bs-sct"></i><i class="bs-sci"></i><i class="bs-scv"></i><i class="bs-scf"></i></div><div class="bs-sc"><i class="bs-sct"></i><i class="bs-sci"></i><i class="bs-scv"></i><i class="bs-scf"></i></div></div>
+        <div class="bs-tbl"><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i></div>
+      </div></div>
+    <div class="bs-a-phone">
+      <div class="bs-bar"><i class="bs-c"></i><i class="bs-pill"></i><span></span><i class="bs-c"></i><i class="bs-c"></i><i class="bs-c"></i><i class="bs-c"></i><i class="bs-c"></i></div>
+      <div class="bs-list"><div><i class="bs-ic"></i><i class="bs-l1"></i><i class="bs-l2"></i><i class="bs-amt"></i></div><div><i class="bs-ic"></i><i class="bs-l1"></i><i class="bs-l2"></i><i class="bs-amt"></i></div><div><i class="bs-ic"></i><i class="bs-l1"></i><i class="bs-l2"></i><i class="bs-amt"></i></div><div><i class="bs-ic"></i><i class="bs-l1"></i><i class="bs-l2"></i><i class="bs-amt"></i></div><div><i class="bs-ic"></i><i class="bs-l1"></i><i class="bs-l2"></i><i class="bs-amt"></i></div><div><i class="bs-ic"></i><i class="bs-l1"></i><i class="bs-l2"></i><i class="bs-amt"></i></div></div>
+      <div class="bs-card"><i class="bs-ct"></i><i class="bs-tx"></i><i class="bs-tx"></i><i class="bs-tx"></i><i class="bs-tx"></i></div>
+      <i class="bs-search"></i><i class="bs-bolt"></i>
+    </div>
+    <div class="bs-p-desk">
+      <div class="bs-ph"><i class="bs-pt"></i><span></span><i class="bs-c"></i><i class="bs-mon"></i><i class="bs-c"></i><i class="bs-c"></i><i class="bs-c"></i></div>
+      <div class="bs-pcards"><div class="bs-pc"><i class="bs-pcl"></i><i class="bs-pcv"></i><i class="bs-pcc"></i></div><div class="bs-pc"><i class="bs-pcl"></i><i class="bs-pcv"></i><i class="bs-pcc"></i></div><div class="bs-pc"><i class="bs-pcl"></i><i class="bs-pcv"></i><i class="bs-pcc"></i></div><div class="bs-pc"><i class="bs-pcl"></i><i class="bs-pcv"></i><i class="bs-pcc"></i></div><div class="bs-pc"><i class="bs-pcl"></i><i class="bs-pcv"></i><i class="bs-pcc"></i></div></div>
+      <div class="bs-sec"><i class="bs-st"></i><i class="bs-sr"></i><i class="bs-sr"></i><i class="bs-sr"></i></div>
+      <div class="bs-sec"><i class="bs-st"></i><i class="bs-sr"></i><i class="bs-sr"></i></div>
+      <div class="bs-sec"><i class="bs-st"></i><i class="bs-sr"></i><i class="bs-sr"></i><i class="bs-sr"></i><i class="bs-sr"></i></div>
+    </div>
+    <div class="bs-p-phone">
+      <div class="bs-bar"><i class="bs-pt"></i><span></span><i class="bs-c"></i><i class="bs-c"></i><i class="bs-c"></i><i class="bs-c"></i><i class="bs-c"></i></div>
+      <div class="bs-list"><div><i class="bs-ic"></i><i class="bs-l1"></i><i class="bs-l2"></i><i class="bs-amt"></i></div><div><i class="bs-ic"></i><i class="bs-l1"></i><i class="bs-l2"></i><i class="bs-amt"></i></div><div><i class="bs-ic"></i><i class="bs-l1"></i><i class="bs-l2"></i><i class="bs-amt"></i></div><div><i class="bs-ic"></i><i class="bs-l1"></i><i class="bs-l2"></i><i class="bs-amt"></i></div><div><i class="bs-ic"></i><i class="bs-l1"></i><i class="bs-l2"></i><i class="bs-amt"></i></div></div>
+      <div class="bs-card"><i class="bs-ct"></i><i class="bs-pr"></i><i class="bs-pr"></i><i class="bs-pr"></i></div>
+      <div class="bs-card"><i class="bs-ct"></i><i class="bs-pr"></i><i class="bs-pr"></i></div>
+    </div>
+  </div>
   <iframe id="app" title="GHL Boys Club" allow="clipboard-write"></iframe>
   <script>
     // "Keep me signed in": the app tells this page its device key, and this page keeps it in its own storage and
@@ -59,14 +215,28 @@
     try { if (!key) key = localStorage.getItem(KEY_NAME) || ''; } catch (e) {}
     document.getElementById('app').src = APP_URL + (key ? '?k=' + encodeURIComponent(key) : '');
 
+    function hideBoot() {
+      var h = document.documentElement;
+      if (!h.classList.contains('boot') || h.classList.contains('fd-ready')) return;
+      h.classList.add('fd-ready');
+      setTimeout(function () { h.classList.remove('boot', 'boot-partner', 'fd-ready'); }, 300);
+    }
+    setTimeout(hideBoot, 45000);   // safety net: never cover the app for ever
+
     window.addEventListener('message', function (e) {
       // only messages from the app itself (Google's script domains)
       if (!/^https:\/\/([a-z0-9-]+\.)*(script\.google\.com|googleusercontent\.com)$/.test(e.origin)) return;
       var d = e.data || {};
       if (d.type === 'ghl-theme') {   // match the app's background, also behind the status bar and Safari's toolbar
         if (!/^#[0-9a-fA-F]{6}$/.test(d.bg || '')) return;
+        try { localStorage.setItem('GHL_FD_THEME', /^#(f2f2f7|f5f5f7)$/i.test(d.bg) ? 'light' : 'dark'); } catch (err) {}
         document.documentElement.style.background = document.body.style.background = d.bg;
         document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.setAttribute('content', d.bg); });
+        return;
+      }
+      if (d.type === 'ghl-ready') {
+        if (d.role === 'admin' || d.role === 'partner') { try { localStorage.setItem('GHL_FD_ROLE', d.role); } catch (err) {} }
+        hideBoot();
         return;
       }
       if (d.type !== 'ghl-device-key') return;
