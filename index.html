@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Boys Club">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+  <meta name="robots" content="noindex, nofollow">
+  <title>GHL Boys Club</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <style>
+    /* The app fills the whole screen. Google's "created by an Apps Script user" bar is only added when the
+       app is opened directly, not when it is shown inside another page. */
+    html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+    @media (prefers-color-scheme: light) { html, body { background: #f2f2f7; } }
+    @media (min-width: 769px) { html, body { background: #1e1e1e; } }
+    @media (min-width: 769px) and (prefers-color-scheme: light) { html, body { background: #f5f5f7; } }
+    iframe { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+  </style>
+</head>
+<body>
+  <iframe id="app" title="GHL Boys Club" allow="clipboard-write"></iframe>
+  <script>
+    // "Keep me signed in": the app tells this page its device key, and this page keeps it in its own storage and
+    // in its address (?k=…), so a phone home-screen icon opens straight in. The key goes back to the app on load.
+    var APP_URL = 'https://script.google.com/macros/s/AKfycbzujaHNo4PGhxX0BiqqqmSsyK4xbLjaq_my-yLHNrcYI8RnsLuhaHwSBAOqmTA3dKoZuQ/exec';
+    var KEY_NAME = 'GHL_DEVICE_KEY';
+    var q = new URLSearchParams(location.search);
+    var key = q.get('k') || '';
+    try { if (!key) key = localStorage.getItem(KEY_NAME) || ''; } catch (e) {}
+    document.getElementById('app').src = APP_URL + (key ? '?k=' + encodeURIComponent(key) : '');
+
+    window.addEventListener('message', function (e) {
+      // only messages from the app itself (Google's script domains)
+      if (!/^https:\/\/([a-z0-9-]+\.)*(script\.google\.com|googleusercontent\.com)$/.test(e.origin)) return;
+      var d = e.data || {};
+      if (d.type !== 'ghl-device-key') return;
+      var k = typeof d.key === 'string' ? d.key : '';
+      try { if (k) localStorage.setItem(KEY_NAME, k); else localStorage.removeItem(KEY_NAME); } catch (err) {}
+      history.replaceState(null, '', location.pathname + (k ? '?k=' + encodeURIComponent(k) : ''));
+    });
+  </script>
+</body>
+</html>
