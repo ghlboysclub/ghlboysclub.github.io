@@ -244,12 +244,15 @@
     function safeTop() { var d = document.createElement('div'); d.style.cssText = 'position:fixed;top:0;left:0;width:1px;visibility:hidden;height:env(safe-area-inset-top)'; document.body.appendChild(d); var h = d.getBoundingClientRect().height; d.remove(); return Math.round(h); }
     function insets() {
       if (!iosSafari()) return { top: 0, bottom: 0 };
-      var full = Math.max(fullScreenHeight(), window.innerHeight);
+      // Measured on iPhone SE + 13 Pro (15 Oct): the page starts below the status bar and reaches the bottom of the
+      // screen = the largest page area Safari offers (100lvh) + its smallest toolbar (58). The app is made that tall
+      // (so it runs under the toolbar) and lifts its bottom bar by whatever the toolbar covers right now.
+      var lvh = document.getElementById('fdProbeL').getBoundingClientRect().height;
+      var pageH = Math.round(Math.min(lvh + 58, Math.max(fullScreenHeight(), lvh)));
       var f = document.getElementById('app');
-      if (f) { f.style.height = full + 'px'; document.body.style.minHeight = full + 'px'; }
+      if (f) { f.style.height = pageH + 'px'; document.body.style.minHeight = pageH + 'px'; }
       var vis = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-      var top = safeTop(); if (!top && full - vis > 60) top = 20;   // status bar (env() can be 0 here)
-      return { top: top, bottom: Math.max(0, Math.round(full - vis)) };
+      return { top: 0, bottom: Math.max(0, Math.round(pageH - vis)) };   // top: nothing extra (the page already starts below the status bar)
     }
     function sendInset() {
       var i = insets();
