@@ -233,18 +233,32 @@
 
     // How much of the page Safari's bottom toolbar covers right now; the app lifts its bottom bar by this much
     var insetTarget = null;
-    function bottomInset() {
-      if (!document.documentElement.classList.contains('fd-ios')) return 0;   // only Safari's floating toolbar covers the page
-      var l = document.getElementById('fdProbeL'), d = document.getElementById('fdProbeD');
-      return (l && d) ? Math.max(0, Math.round(l.getBoundingClientRect().height - d.getBoundingClientRect().height)) : 0;
+    // iPhone Safari (not the home-screen app): Safari draws the page from the very top of the screen (under the
+    // status bar) and shows its toolbar over the bottom. The app is made as tall as the whole screen, so it also runs
+    // under the toolbar like any website, and is told how much the status bar (top) and toolbar (bottom) cover.
+    function iosSafari() { var c = document.documentElement.classList; return c.contains('fd-ios') && !c.contains('fd-standalone'); }
+    function fullScreenHeight() {
+      var portrait = window.matchMedia('(orientation: portrait)').matches;
+      return portrait ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height);
+    }
+    function safeTop() { var d = document.createElement('div'); d.style.cssText = 'position:fixed;top:0;left:0;width:1px;visibility:hidden;height:env(safe-area-inset-top)'; document.body.appendChild(d); var h = d.getBoundingClientRect().height; d.remove(); return Math.round(h); }
+    function insets() {
+      if (!iosSafari()) return { top: 0, bottom: 0 };
+      var full = Math.max(fullScreenHeight(), window.innerHeight);
+      var f = document.getElementById('app');
+      if (f) { f.style.height = full + 'px'; document.body.style.minHeight = full + 'px'; }
+      var vis = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      var top = safeTop(); if (!top && full - vis > 60) top = 20;   // status bar (env() can be 0 here)
+      return { top: top, bottom: Math.max(0, Math.round(full - vis)) };
     }
     function sendInset() {
-      var b = bottomInset();
-      document.documentElement.style.setProperty('--host-bottom', b + 'px');
-      if (insetTarget) { try { insetTarget.w.postMessage({ type: 'ghl-inset', bottom: b }, insetTarget.o); } catch (e) {} }
+      var i = insets();
+      document.documentElement.style.setProperty('--host-bottom', i.bottom + 'px');
+      if (insetTarget) { try { insetTarget.w.postMessage({ type: 'ghl-inset', bottom: i.bottom, top: i.top }, insetTarget.o); } catch (e) {} }
     }
     window.addEventListener('resize', sendInset);
-    function pinTop() { if (!document.documentElement.classList.contains('fd-standalone')) return; if (window.scrollY || window.scrollX || document.documentElement.scrollTop || document.body.scrollTop) { window.scrollTo(0, 0); document.documentElement.scrollTop = document.body.scrollTop = 0; } }
+    window.addEventListener('orientationchange', function () { setTimeout(sendInset, 300); });
+    function pinTop() { var c = document.documentElement.classList; if (!c.contains('fd-standalone') && !c.contains('fd-ios')) return; if (window.scrollY || window.scrollX || document.documentElement.scrollTop || document.body.scrollTop) { window.scrollTo(0, 0); document.documentElement.scrollTop = document.body.scrollTop = 0; } }
     window.addEventListener('scroll', pinTop, { passive: true });
     if (window.visualViewport) { window.visualViewport.addEventListener('resize', pinTop); window.visualViewport.addEventListener('scroll', pinTop); }
     window.addEventListener('focusout', function () { setTimeout(pinTop, 50); setTimeout(pinTop, 400); });
@@ -295,6 +309,27 @@
       try { if (k) localStorage.setItem(KEY_NAME, k); else localStorage.removeItem(KEY_NAME); } catch (err) {}
       history.replaceState(null, '', location.pathname + (k ? '?k=' + encodeURIComponent(k) : ''));
     });
+  </script>
+  <script>
+    // Measuring panel for iPhone Safari layout (only with ?debug=1 in the address): sizes the page sees.
+    (function () {
+      if (!/[?&]debug=1/.test(location.search)) return;
+      var box = document.createElement('div');
+      box.style.cssText = 'position:fixed;left:8px;right:8px;top:40%;z-index:99999;background:rgba(255,0,0,.85);color:#fff;font:12px/1.4 -apple-system,monospace;padding:10px;border-radius:10px;white-space:pre-wrap;pointer-events:none';
+      var probe = function (css) { var d = document.createElement('div'); d.style.cssText = 'position:fixed;left:0;top:0;width:1px;visibility:hidden;' + css; document.body.appendChild(d); var h = d.getBoundingClientRect().height; d.remove(); return Math.round(h); };
+      function show() {
+        var f = document.getElementById('app').getBoundingClientRect(), vv = window.visualViewport;
+        box.textContent = 'innerHeight ' + innerHeight + '  outer ' + outerHeight + '  screen ' + screen.height +
+          '\nvh ' + probe('height:100vh') + '  lvh ' + probe('height:100lvh') + '  dvh ' + probe('height:100dvh') + '  svh ' + probe('height:100svh') +
+          '\nsafe top ' + probe('height:env(safe-area-inset-top)') + '  safe bottom ' + probe('height:env(safe-area-inset-bottom)') +
+          '\nvisualViewport ' + (vv ? Math.round(vv.height) + ' (offset ' + Math.round(vv.offsetTop) + ')' : '-') +
+          '\nframe top ' + Math.round(f.top) + '  height ' + Math.round(f.height) + '  bottom ' + Math.round(f.bottom) +
+          '\nscrollY ' + Math.round(scrollY) + '  docHeight ' + document.documentElement.scrollHeight +
+          '\nclasses ' + document.documentElement.className;
+      }
+      document.body.appendChild(box); show();
+      setInterval(show, 1000);
+    })();
   </script>
 </body>
 </html>
