@@ -84,6 +84,7 @@
       html.boot:not(.boot-partner) #bootScreen .bs-a-phone, html.boot.boot-partner #bootScreen .bs-p-phone { display: flex; }
       #bootScreen .bs-a-phone, #bootScreen .bs-p-phone { flex-direction: column; gap: 14px; height: 100%; padding: calc(14px + env(safe-area-inset-top)) 12px 0; }
       #bootScreen .bs-a-phone > *, #bootScreen .bs-p-phone > * { flex-shrink: 0; }   /* never squeezed (same sizes as the app) */
+      #bootScreen .bs-a-phone > :last-child, #bootScreen .bs-p-phone > :last-child { flex: 1 0 auto; margin-bottom: -60px; }   /* no empty strip at the bottom */
       #bootScreen .bs-p-phone { padding-left: calc(2.5vw + 6px); padding-right: calc(2.5vw + 6px); }
       #bootScreen .bs-bar { display: flex; align-items: center; gap: 4px; height: 52px; padding: 0 8px; border-radius: 26px; background: var(--bs-group); border: 0.5px solid var(--bs-line); }
       #bootScreen .bs-pill { width: 64px; height: 32px; border-radius: 16px; margin-left: 6px; }
