@@ -261,6 +261,20 @@
         document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.setAttribute('content', d.bg); });
         return;
       }
+      if (d.type === 'ghl-cache-save') {   // last data (compressed), so the app can show it at once next time
+        try {
+          if (!d.data || !d.who) localStorage.removeItem('GHL_DATA');
+          else localStorage.setItem('GHL_DATA', JSON.stringify({ who: String(d.who), t: Date.now(), data: String(d.data) }));
+        } catch (err) { try { localStorage.removeItem('GHL_DATA'); } catch (e2) {} }
+        return;
+      }
+      if (d.type === 'ghl-cache-get') {
+        var saved = null;
+        try { saved = JSON.parse(localStorage.getItem('GHL_DATA') || 'null'); } catch (err) {}
+        var ok = saved && saved.who === String(d.who || '') && (Date.now() - saved.t) < 30 * 24 * 3600 * 1000;
+        try { e.source.postMessage({ type: 'ghl-cache', who: ok ? saved.who : '', data: ok ? saved.data : '' }, e.origin); } catch (err) {}
+        return;
+      }
       if (d.type === 'ghl-inset-request') { insetTarget = { w: e.source, o: e.origin }; sendInset(); return; }
       if (d.type === 'ghl-ready') {
         if (d.role === 'admin' || d.role === 'partner') { try { localStorage.setItem('GHL_FD_ROLE', d.role); } catch (err) {} }
