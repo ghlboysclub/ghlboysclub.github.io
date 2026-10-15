@@ -234,8 +234,12 @@
         var h = Math.max(window.innerHeight, full) + 'px';
         var f = document.getElementById('app');
         if (f) { f.style.bottom = 'auto'; f.style.height = h; }
+        // the loading screen too (it stopped at the shorter page height = the small band in the home-screen app)
+        var bs = document.getElementById('bootScreen');
+        if (bs) { bs.style.bottom = 'auto'; bs.style.height = Math.max(window.innerHeight, full) + 'px'; }
       }
       fit();
+      document.addEventListener('DOMContentLoaded', fit);
       window.addEventListener('resize', fit);
       document.documentElement.classList.add('fd-standalone');
       window.addEventListener('orientationchange', function () { setTimeout(fit, 300); });
@@ -303,7 +307,12 @@
       var d = e.data || {};
       if (d.type === 'ghl-theme') {   // match the app's background, also behind the status bar and Safari's toolbar
         if (!/^#[0-9a-fA-F]{6}$/.test(d.bg || '')) return;
-        try { localStorage.setItem('GHL_FD_THEME', /^#(f2f2f7|f5f5f7)$/i.test(d.bg) ? 'light' : 'dark'); } catch (err) {}
+        // the loading screen follows the app's colour at once (it stayed light while Safari's toolbar area turned black = a band);
+        // it is remembered for next time only once the app is showing (the sign-in page can send a passing colour while loading)
+        var fdTheme = /^#(f2f2f7|f5f5f7)$/i.test(d.bg) ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', fdTheme);
+        window.__fdTheme = fdTheme;
+        if (window.__fdShown) { try { localStorage.setItem('GHL_FD_THEME', fdTheme); } catch (err) {} }
         document.documentElement.style.background = document.body.style.background = d.bg;
         document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.setAttribute('content', d.bg); });
         return;
@@ -325,6 +334,8 @@
       if (d.type === 'ghl-inset-request') { insetTarget = { w: e.source, o: e.origin }; sendInset(); return; }
       if (d.type === 'ghl-ready') {
         if (d.role === 'admin' || d.role === 'partner') { try { localStorage.setItem('GHL_FD_ROLE', d.role); } catch (err) {} }
+        window.__fdShown = true;
+        if (window.__fdTheme) { try { localStorage.setItem('GHL_FD_THEME', window.__fdTheme); } catch (err) {} }
         hideBoot();
         return;
       }
