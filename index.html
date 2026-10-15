@@ -17,7 +17,12 @@
       var h = document.documentElement, t = '', r = '';
       try { t = localStorage.getItem('GHL_FD_THEME') || ''; r = localStorage.getItem('GHL_FD_ROLE') || ''; } catch (e) {}
       if (!t) t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
-      h.setAttribute('data-theme', t); h.classList.add('boot');
+      h.setAttribute('data-theme', t);
+      // Someone signed in on this device → the app-shaped loading screen; nobody (e.g. after logout) → a plain launch
+      // screen with the logo, so a dashboard skeleton never shows before the Sign In screen
+      var hasKey = /[?&]k=/.test(location.search);
+      try { if (localStorage.getItem('GHL_DEVICE_KEY')) hasKey = true; } catch (e) {}
+      h.classList.add(hasKey ? 'boot' : 'fd-launch');
       // iPhone/iPad Safari: the toolbar floats over the page, so the app runs underneath it (other phones: no)
       var ua = navigator.userAgent || '';
       if (/iP(hone|ad|od)/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) h.classList.add('fd-ios');
@@ -167,7 +172,11 @@
     }
 
     html.boot #bootScreen { z-index: 10; transition: opacity .25s ease; }
-    #bootScreen .bs-search, #bootScreen .bs-bolt { bottom: calc(14px + env(safe-area-inset-bottom) + var(--host-bottom, 0px)) !important; }
+    /* launch screen (nobody signed in): the logo in the middle, like an iPhone app opening */
+    html.fd-launch body::after { content: ''; position: fixed; z-index: 10; left: 50%; top: 42%; width: 76px; height: 76px; margin: -38px 0 0 -38px;
+      background: url('icon.svg') center / contain no-repeat; border-radius: 18px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+    html.fd-launch #app { visibility: hidden; }
+    #bootScreen .bs-search, #bootScreen .bs-bolt { position: absolute !important; bottom: calc(14px + env(safe-area-inset-bottom) + var(--host-bottom, 0px)) !important; }
     html.boot.fd-ready #bootScreen { opacity: 0; }
     html[data-theme="light"], html[data-theme="light"] body { background: #f2f2f7; }
     @media (min-width: 769px) { html[data-theme="light"], html[data-theme="light"] body { background: #f5f5f7; } }
@@ -251,6 +260,9 @@
       var pageH = Math.round(Math.min(lvh + 58, Math.max(fullScreenHeight(), lvh)));
       var f = document.getElementById('app');
       if (f) { f.style.height = pageH + 'px'; document.body.style.minHeight = pageH + 'px'; }
+      // the loading screen covers exactly what the app covers (it stopped at the visible part, leaving a band below)
+      var bs = document.getElementById('bootScreen');
+      if (bs) { bs.style.bottom = 'auto'; bs.style.height = pageH + 'px'; }
       var vis = window.visualViewport ? window.visualViewport.height : window.innerHeight;
       return { top: 0, bottom: Math.max(0, Math.round(pageH - vis)) };   // top: nothing extra (the page already starts below the status bar)
     }
@@ -270,6 +282,7 @@
 
     function hideBoot() {
       var h = document.documentElement;
+      h.classList.remove('fd-launch');
       if (!h.classList.contains('boot') || h.classList.contains('fd-ready')) return;
       h.classList.add('fd-ready');
       setTimeout(function () { h.classList.remove('boot', 'boot-partner', 'fd-ready'); }, 300);
