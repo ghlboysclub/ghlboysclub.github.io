@@ -47,8 +47,9 @@
        page area + Safari's toolbar, so no band ever shows below the loading screen (the script fine-tunes it right after) */
     html.fd-ios:not(.fd-standalone) iframe { height: calc(100lvh + 58px); }
     html.fd-ios:not(.fd-standalone) body { min-height: calc(100lvh + 58px); }
-    html.fd-ios:not(.fd-standalone) #bootScreen { bottom: auto !important; height: calc(100lvh + 58px) !important; }
-    html.fd-ios:not(.fd-standalone) #bootScreen .bs-search, html.fd-ios:not(.fd-standalone) #bootScreen .bs-bolt { bottom: calc(14px + 100lvh + 58px - 100dvh) !important; }
+    /* +160px below the screen: when Safari's pull-to-refresh pushes the page down while it reloads, the loading screen still reaches the bottom (it left a band) */
+    html.fd-ios:not(.fd-standalone) #bootScreen { bottom: auto !important; height: calc(100lvh + 58px + 160px) !important; }
+    html.fd-ios:not(.fd-standalone) #bootScreen .bs-search, html.fd-ios:not(.fd-standalone) #bootScreen .bs-bolt { bottom: calc(14px + 100lvh + 58px - 100dvh + 160px) !important; }
     html.fd-ios.fd-standalone iframe { position: fixed; }   /* runs under Safari's floating toolbar, like a normal page */
     /* the front door itself never scrolls or shifts: if iPhone nudges it (e.g. after the keyboard closes), taps inside
        the app land above the finger. Only the app inside scrolls. */
@@ -269,7 +270,7 @@
       if (f) { f.style.height = pageH + 'px'; document.body.style.minHeight = pageH + 'px'; }
       // the loading screen covers exactly what the app covers (it stopped at the visible part, leaving a band below)
       var bs = document.getElementById('bootScreen');
-      if (bs) { bs.style.bottom = 'auto'; bs.style.height = pageH + 'px'; }
+      if (bs) { bs.style.bottom = 'auto'; bs.style.height = (pageH + 160) + 'px'; }
       var vis = window.visualViewport ? window.visualViewport.height : window.innerHeight;
       return { top: 0, bottom: Math.max(0, Math.round(pageH - vis)) };   // top: nothing extra (the page already starts below the status bar)
     }
