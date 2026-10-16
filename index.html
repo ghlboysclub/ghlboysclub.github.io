@@ -294,8 +294,13 @@
       var vis = window.visualViewport ? window.visualViewport.height : window.innerHeight;
       return { top: 0, bottom: Math.max(0, Math.round(pageH - vis)) };   // top: nothing extra (the page already starts below the status bar)
     }
+    var lastInset = null;
     function sendInset() {
+      // keyboard open: keep the last value (the visible area changes on every key while typing → the open form jumped)
+      if (lastInset && typeof keyboardUp === 'function' && keyboardUp()) return;
       var i = insets();
+      if (lastInset && lastInset.bottom === i.bottom && lastInset.top === i.top) return;
+      lastInset = i;
       document.documentElement.style.setProperty('--host-bottom', i.bottom + 'px');
       if (insetTarget) { try { insetTarget.w.postMessage({ type: 'ghl-inset', bottom: i.bottom, top: i.top }, insetTarget.o); } catch (e) {} }
     }
@@ -350,7 +355,7 @@
         try { e.source.postMessage({ type: 'ghl-cache', who: ok ? saved.who : '', data: ok ? saved.data : '' }, e.origin); } catch (err) {}
         return;
       }
-      if (d.type === 'ghl-inset-request') { insetTarget = { w: e.source, o: e.origin }; sendInset(); return; }
+      if (d.type === 'ghl-inset-request') { insetTarget = { w: e.source, o: e.origin }; lastInset = null; sendInset(); return; }
       if (d.type === 'ghl-ready') {
         if (d.role === 'admin' || d.role === 'partner') { try { localStorage.setItem('GHL_FD_ROLE', d.role); } catch (err) {} }
         window.__fdShown = true;
