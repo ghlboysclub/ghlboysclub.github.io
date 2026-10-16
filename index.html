@@ -23,8 +23,15 @@
       document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.setAttribute('content', tc); m.removeAttribute('media'); });
       // Someone signed in on this device → the app-shaped loading screen; nobody (e.g. after logout) → a plain launch
       // screen with the logo, so a dashboard skeleton never shows before the Sign In screen
-      var hasKey = /[?&]k=/.test(location.search);
+      // A home-screen icon keeps the address it was added with (…?k=key) for ever, so after a sign-out the old key
+      // still arrives: a key that was signed out on this device counts as no key (straight to the Sign In screen).
+      var urlKey = (location.search.match(/[?&]k=([^&]*)/) || [])[1] || '';
+      try { urlKey = decodeURIComponent(urlKey); } catch (e) {}
+      var signedOut = '';
+      try { signedOut = localStorage.getItem('GHL_SIGNED_OUT_KEY') || ''; } catch (e) {}
+      var hasKey = !!urlKey && urlKey !== signedOut;
       try { if (localStorage.getItem('GHL_DEVICE_KEY')) hasKey = true; } catch (e) {}
+      window.__fdSignedOut = signedOut;
       h.classList.add(hasKey ? 'boot' : 'fd-launch');
       // iPhone/iPad Safari: the toolbar floats over the page, so the app runs underneath it (other phones: no)
       var ua = navigator.userAgent || '';
@@ -252,6 +259,7 @@
     var KEY_NAME = 'GHL_DEVICE_KEY';
     var q = new URLSearchParams(location.search);
     var key = q.get('k') || '';
+    if (key && key === window.__fdSignedOut) key = '';   // signed out on this device: the old key in the icon's address is not used
     try { if (!key) key = localStorage.getItem(KEY_NAME) || ''; } catch (e) {}
     document.getElementById('app').src = APP_URL + (key ? '?k=' + encodeURIComponent(key) : '');
 
@@ -344,7 +352,14 @@
       }
       if (d.type !== 'ghl-device-key') return;
       var k = typeof d.key === 'string' ? d.key : '';
-      try { if (k) localStorage.setItem(KEY_NAME, k); else localStorage.removeItem(KEY_NAME); } catch (err) {}
+      try {
+        if (k) { localStorage.setItem(KEY_NAME, k); localStorage.removeItem('GHL_SIGNED_OUT_KEY'); }
+        else {   // signed out: remember which key that was (the home-screen icon may still carry it)
+          var old = localStorage.getItem(KEY_NAME) || new URLSearchParams(location.search).get('k') || '';
+          if (old) localStorage.setItem('GHL_SIGNED_OUT_KEY', old);
+          localStorage.removeItem(KEY_NAME);
+        }
+      } catch (err) {}
       history.replaceState(null, '', location.pathname + (k ? '?k=' + encodeURIComponent(k) : ''));
     });
   </script>
