@@ -33,6 +33,9 @@
       try { if (localStorage.getItem('GHL_DEVICE_KEY')) hasKey = true; } catch (e) {}
       window.__fdSignedOut = signedOut;
       h.classList.add(hasKey ? 'boot' : 'fd-launch');
+      // signed in: the logo first (like an iPhone app opening), then the app-shaped loading screen
+      if (hasKey) { h.classList.add('fd-logo'); setTimeout(function () { h.classList.remove('fd-logo'); }, 900); }
+      window.__fdSavedTheme = (function () { try { return localStorage.getItem('GHL_FD_THEME') || ''; } catch (e) { return ''; } })();
       // iPhone/iPad Safari: the toolbar floats over the page, so the app runs underneath it (other phones: no)
       var ua = navigator.userAgent || '';
       if (/iP(hone|ad|od)/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) h.classList.add('fd-ios');
@@ -199,6 +202,12 @@
     html.fd-launch body::after { content: ''; position: fixed; z-index: 10; left: 50%; top: 42%; width: 76px; height: 76px; margin: -38px 0 0 -38px;
       background: url('icon.svg') center / contain no-repeat; border-radius: 18px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
     html.fd-launch #app { visibility: hidden; }
+    /* signed in: the same logo for a moment, over the plain background, then the loading screen fades in */
+    html.boot body::after { content: ''; position: fixed; z-index: 60; left: 50%; top: 42%; width: 76px; height: 76px; margin: -38px 0 0 -38px; pointer-events: none;
+      background: url('icon.svg') center / contain no-repeat; border-radius: 18px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); opacity: 0; transition: opacity .3s ease; }
+    html.boot.fd-logo body::after { opacity: 1; }
+    #bootScreen > * { transition: opacity .3s ease; }
+    html.boot.fd-logo #bootScreen > * { opacity: 0; }
     #bootScreen .bs-search, #bootScreen .bs-bolt { position: absolute !important; bottom: calc(14px + env(safe-area-inset-bottom) + var(--host-bottom, 0px)) !important; }
     html.boot.fd-ready #bootScreen { opacity: 0; }
     html[data-theme="light"], html[data-theme="light"] body { background: #f2f2f7; }
@@ -325,20 +334,24 @@
     }
     setTimeout(hideBoot, 45000);   // safety net: never cover the app for ever
 
+    function fdApplyBg(bg) {
+      var fdTheme = /^#(f2f2f7|f5f5f7)$/i.test(bg) ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', fdTheme);
+      window.__fdTheme = fdTheme;
+      if (window.__fdShown) { try { localStorage.setItem('GHL_FD_THEME', fdTheme); } catch (err) {} }
+      document.documentElement.style.background = document.body.style.background = bg;
+      document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.setAttribute('content', bg); });
+    }
     window.addEventListener('message', function (e) {
       // only messages from the app itself (Google's script domains)
       if (!/^https:\/\/([a-z0-9-]+\.)*(script\.google\.com|googleusercontent\.com)$/.test(e.origin)) return;
       var d = e.data || {};
       if (d.type === 'ghl-theme') {   // match the app's background, also behind the status bar and Safari's toolbar
         if (!/^#[0-9a-fA-F]{6}$/.test(d.bg || '')) return;
-        // the loading screen follows the app's colour at once (it stayed light while Safari's toolbar area turned black = a band);
-        // it is remembered for next time only once the app is showing (the sign-in page can send a passing colour while loading)
-        var fdTheme = /^#(f2f2f7|f5f5f7)$/i.test(d.bg) ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', fdTheme);
-        window.__fdTheme = fdTheme;
-        if (window.__fdShown) { try { localStorage.setItem('GHL_FD_THEME', fdTheme); } catch (err) {} }
-        document.documentElement.style.background = document.body.style.background = d.bg;
-        document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.setAttribute('content', d.bg); });
+        // while the app is still loading it can report a passing theme (its own default before your saved choice arrives),
+        // which flashed the loading screen dark → light: keep the theme remembered from last time until the app is showing
+        if (!window.__fdShown && window.__fdSavedTheme) { window.__fdPendingBg = d.bg; return; }
+        fdApplyBg(d.bg);
         return;
       }
       if (d.type === 'ghl-cache-save') {   // last data (compressed), so the app can show it at once next time
@@ -359,6 +372,7 @@
       if (d.type === 'ghl-ready') {
         if (d.role === 'admin' || d.role === 'partner') { try { localStorage.setItem('GHL_FD_ROLE', d.role); } catch (err) {} }
         window.__fdShown = true;
+        if (window.__fdPendingBg) { fdApplyBg(window.__fdPendingBg); window.__fdPendingBg = ''; }   // the app's real theme, now it is showing
         if (window.__fdTheme) { try { localStorage.setItem('GHL_FD_THEME', window.__fdTheme); } catch (err) {} }
         hideBoot();
         return;
