@@ -65,6 +65,11 @@
        the app land above the finger. Only the app inside scrolls. */
     html.fd-standalone, html.fd-standalone body { overflow: hidden; overscroll-behavior: none; touch-action: manipulation; }
     html.fd-standalone body { position: fixed; inset: 0; }
+    /* iPhone home-screen app (measured 16 Oct, iPhone SE): the screen is 667 tall (vh 667) but the page box is only 647
+       (innerHeight 647, the status bar is taken off at the BOTTOM), so a body pinned with inset:0 cut the app off 20pt
+       above the bottom = the band. The body is now as tall as the screen. */
+    html.fd-ios.fd-standalone, html.fd-ios.fd-standalone body { height: 100vh; }
+    html.fd-ios.fd-standalone body { bottom: auto; }
     /* in Safari the page behaves like a normal page, so it runs under Safari's floating toolbar (like any website) */
     #fdProbeL, #fdProbeD { position: fixed; top: 0; left: 0; width: 1px; visibility: hidden; pointer-events: none; }
     #fdProbeL { height: 100lvh; } #fdProbeD { height: 100dvh; }
@@ -360,7 +365,9 @@
           localStorage.removeItem(KEY_NAME);
         }
       } catch (err) {}
-      history.replaceState(null, '', location.pathname + (k ? '?k=' + encodeURIComponent(k) : ''));
+      var dbg = /[?&]debug=1/.test(location.search) ? 'debug=1' : '';   // keep the measuring panel when the key is saved
+      var qs = [k ? 'k=' + encodeURIComponent(k) : '', dbg].filter(Boolean).join('&');
+      history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
     });
   </script>
   <script>
@@ -378,6 +385,7 @@
           '\nvisualViewport ' + (vv ? Math.round(vv.height) + ' (offset ' + Math.round(vv.offsetTop) + ')' : '-') +
           '\nframe top ' + Math.round(f.top) + '  height ' + Math.round(f.height) + '  bottom ' + Math.round(f.bottom) +
           '\nscrollY ' + Math.round(scrollY) + '  docHeight ' + document.documentElement.scrollHeight +
+          '\nbody ' + Math.round(document.body.getBoundingClientRect().height) + '  html ' + Math.round(document.documentElement.getBoundingClientRect().height) +
           '\nclasses ' + document.documentElement.className;
       }
       document.body.appendChild(box); show();
