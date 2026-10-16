@@ -372,6 +372,19 @@
         try { e.source.postMessage({ type: 'ghl-cache', who: ok ? saved.who : '', data: ok ? saved.data : '' }, e.origin); } catch (err) {}
         return;
       }
+      // the app itself, kept compressed with its fingerprint (the app checks the fingerprint before using it)
+      if (d.type === 'ghl-app-get') {
+        var app = null;
+        try { app = JSON.parse(localStorage.getItem('GHL_APP') || 'null'); } catch (err) {}
+        try { e.source.postMessage({ type: 'ghl-app', fp: app && app.fp || '', data: app && app.data || '' }, e.origin); } catch (err) {}
+        return;
+      }
+      if (d.type === 'ghl-app-save') {
+        if (!/^[0-9a-f]{64}$/.test(String(d.fp || '')) || typeof d.data !== 'string' || d.data.length > 3000000) return;
+        try { localStorage.setItem('GHL_APP', JSON.stringify({ fp: d.fp, data: d.data })); }
+        catch (err) { try { localStorage.removeItem('GHL_APP'); } catch (e2) {} }
+        return;
+      }
       if (d.type === 'ghl-inset-request') { insetTarget = { w: e.source, o: e.origin }; lastInset = null; sendInset(); return; }
       if (d.type === 'ghl-ready') {
         if (d.role === 'admin' || d.role === 'partner') { try { localStorage.setItem('GHL_FD_ROLE', d.role); } catch (err) {} }
@@ -389,6 +402,7 @@
           var old = localStorage.getItem(KEY_NAME) || new URLSearchParams(location.search).get('k') || '';
           if (old) localStorage.setItem('GHL_SIGNED_OUT_KEY', old);
           localStorage.removeItem(KEY_NAME);
+          localStorage.removeItem('GHL_APP');   // the next person may get the other app (admin / partner)
         }
       } catch (err) {}
       var dbg = /[?&]debug=1/.test(location.search) ? 'debug=1' : '';   // keep the measuring panel when the key is saved
