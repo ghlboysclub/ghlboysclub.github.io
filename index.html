@@ -301,7 +301,10 @@
     }
     window.addEventListener('resize', sendInset);
     window.addEventListener('orientationchange', function () { setTimeout(sendInset, 300); });
-    function pinTop() { var c = document.documentElement.classList; if (!c.contains('fd-standalone') && !c.contains('fd-ios')) return; if (window.scrollY || window.scrollX || document.documentElement.scrollTop || document.body.scrollTop) { window.scrollTo(0, 0); document.documentElement.scrollTop = document.body.scrollTop = 0; } }
+    // while the keyboard is up, iPhone moves the page to keep the field above it: leave that alone (pulling the page back
+    // on every key fought iPhone and made the screen flicker while typing the code); put it back once the keyboard closes
+    function keyboardUp() { var vv = window.visualViewport; return !!vv && vv.height < window.innerHeight * 0.8; }
+    function pinTop() { var c = document.documentElement.classList; if (!c.contains('fd-standalone') && !c.contains('fd-ios')) return; if (keyboardUp()) return; if (window.scrollY || window.scrollX || document.documentElement.scrollTop || document.body.scrollTop) { window.scrollTo(0, 0); document.documentElement.scrollTop = document.body.scrollTop = 0; } }
     window.addEventListener('scroll', pinTop, { passive: true });
     if (window.visualViewport) { window.visualViewport.addEventListener('resize', pinTop); window.visualViewport.addEventListener('scroll', pinTop); }
     window.addEventListener('focusout', function () { setTimeout(pinTop, 50); setTimeout(pinTop, 400); });
