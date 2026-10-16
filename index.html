@@ -198,12 +198,16 @@
     }
 
     html.boot #bootScreen { z-index: 10; transition: opacity .25s ease; }
-    /* launch screen (nobody signed in): the logo in the middle, like an iPhone app opening */
-    html.fd-launch body::after { content: ''; position: fixed; z-index: 10; left: 50%; top: 42%; width: 76px; height: 76px; margin: -38px 0 0 -38px;
+    /* launch screen (nobody signed in): the logo in the middle, like an iPhone app opening.
+       Same size and place as Chrome's own launch screen on Android (measured 17 Oct, Pixel: 191 px icon centred at 48.2%
+       of the screen), so the logo stays still when Chrome's screen hands over to ours.
+       Placed by the SCREEN height (vh), not the page: the iPhone home-screen app starts with a page 20 pt shorter and
+       then grows (recording 17 Oct: the logo dropped a little at 1.6 s); the screen height never changes */
+    html.fd-launch body::after { content: ''; position: fixed; z-index: 10; left: 50%; top: 46.3vh; width: 73px; height: 73px; margin: -36.5px 0 0 -36.5px;
       background: url('icon.svg') center / contain no-repeat; border-radius: 18px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
     html.fd-launch #app { visibility: hidden; }
     /* signed in: the same logo for a moment, over the plain background, then the loading screen fades in */
-    html.boot body::after { content: ''; position: fixed; z-index: 60; left: 50%; top: 42%; width: 76px; height: 76px; margin: -38px 0 0 -38px; pointer-events: none;
+    html.boot body::after { content: ''; position: fixed; z-index: 60; left: 50%; top: 46.3vh; width: 73px; height: 73px; margin: -36.5px 0 0 -36.5px; pointer-events: none;
       background: url('icon.svg') center / contain no-repeat; border-radius: 18px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); opacity: 0; transition: opacity .3s ease; }
     html.boot.fd-logo body::after { opacity: 1; }
     #bootScreen > * { transition: opacity .3s ease; }
