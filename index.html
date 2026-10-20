@@ -490,6 +490,11 @@
         catch (err) { try { localStorage.removeItem('GHL_APP'); } catch (e2) {} }
         return;
       }
+      // the app scrolled the field being typed in to the top of its sheet: undo the page shift iOS made to reveal it
+      if (d.type === 'ghl-pin') {
+        if (window.scrollY || window.scrollX || document.documentElement.scrollTop || document.body.scrollTop) { window.scrollTo(0, 0); document.documentElement.scrollTop = document.body.scrollTop = 0; }
+        return;
+      }
       if (d.type === 'ghl-inset-request') { insetTarget = { w: e.source, o: e.origin }; lastInset = null; sendInset(); return; }
       if (d.type === 'ghl-ready') {
         if (d.role === 'admin' || d.role === 'partner') { try { localStorage.setItem('GHL_FD_ROLE', d.role); } catch (err) {} }
