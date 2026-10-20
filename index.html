@@ -216,7 +216,40 @@
     html.boot.fd-ready #bootScreen { opacity: 0; }
     html[data-theme="light"], html[data-theme="light"] body { background: #f2f2f7; }
     @media (min-width: 769px) { html[data-theme="light"], html[data-theme="light"] body { background: #f5f5f7; } }
-  </style>
+      /* start-up screen (20 Oct): the same new skeleton as the app (admin, phone) */
+    #bootScreen .bs-a-phone { display: none !important; }
+    #bootScreen .sk-ios { display: none; }
+    @keyframes skiShim { 0% { background-position: 120% 0; } 100% { background-position: -120% 0; } }
+    @media (max-width: 768px) {
+      html.boot:not(.boot-partner) #bootScreen .sk-ios { display: flex; flex-direction: column; gap: 14px; padding: calc(14px + env(safe-area-inset-top, 0px) + var(--host-top, 0px)) 12px 0; height: 100%; box-sizing: border-box; overflow: hidden; }
+      #bootScreen .sk-ios i, #bootScreen .sk-ios .ski-search { display: block; border-radius: 7px; flex: 0 0 auto;
+        background: linear-gradient(90deg, rgba(255,255,255,0.07) 0 35%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.07) 65% 100%) 0 0 / 300% 100%; animation: skiShim 1.6s linear infinite; }
+      html[data-theme="light"] #bootScreen .sk-ios i, #bootScreen .sk-ios .ski-search { background-image: linear-gradient(90deg, rgba(0,0,0,0.06) 0 35%, rgba(0,0,0,0.02) 50%, rgba(0,0,0,0.06) 65% 100%); }
+      #bootScreen .sk-ios .ski-bar { display: flex; align-items: center; gap: 8px; height: 52px; }
+      #bootScreen .sk-ios .ski-bar span { flex: 1; }
+      #bootScreen .sk-ios .ski-c { width: 44px; height: 44px; border-radius: 50%; }
+      #bootScreen .sk-ios .ski-title { width: 190px; height: 32px; border-radius: 9px; margin: 6px 6px 2px; }
+      #bootScreen .sk-ios .ski-card { background: #1c1c1e; border-radius: 22px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+      html[data-theme="light"] #bootScreen .sk-ios .ski-card { background: #fff; }
+      #bootScreen .sk-ios .ski-row { display: flex; align-items: center; gap: 10px; }
+      #bootScreen .sk-ios .ski-sq { width: 34px; height: 34px; border-radius: 10px; }
+      #bootScreen .sk-ios .ski-l { height: 13px; } #bootScreen .sk-ios .ski-s { width: 70px; height: 10px; margin-top: 7px; }
+      #bootScreen .sk-ios .ski-big { width: 70%; height: 34px; border-radius: 10px; } #bootScreen .sk-ios .ski-m { width: 75%; height: 20px; }
+      #bootScreen .sk-ios .ski-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      #bootScreen .sk-ios .ski-group { padding: 4px 16px; gap: 0; }
+      #bootScreen .sk-ios .ski-li { display: flex; align-items: center; gap: 12px; min-height: 60px; }
+      #bootScreen .sk-ios .ski-li span { flex: 1; }
+      #bootScreen .sk-ios .ski-group .ski-li + .ski-li, #bootScreen .sk-ios .ski-list .ski-li + .ski-li { box-shadow: inset 0 0.5px 0 rgba(127,127,127,0.25); }
+      #bootScreen .sk-ios .ski-amt { width: 84px; height: 14px; }
+      #bootScreen .sk-ios .ski-h { width: 200px; height: 22px; margin: 10px 4px 0; border-radius: 7px; }
+      #bootScreen .sk-ios .ski-list { padding: 0 4px; }
+      #bootScreen .sk-ios .ski-av { width: 38px; height: 38px; border-radius: 50%; }
+      #bootScreen .sk-ios .ski-bottom { position: absolute; left: 20px; right: 20px; bottom: calc(14px + env(safe-area-inset-bottom, 0px) + var(--host-bottom, 0px)); display: flex; gap: 12px; }
+      #bootScreen .sk-ios .ski-search { flex: 1; height: 50px; border-radius: 25px; }
+      #bootScreen .sk-ios .ski-big-c { width: 50px; height: 50px; }
+    }
+    html.fd-ios:not(.fd-standalone) #bootScreen .sk-ios .ski-bottom { bottom: calc(14px + 100lvh + 58px - 100dvh + 160px) !important; }
+</style>
 </head>
 <body>
   <div id="fdProbeL"></div><div id="fdProbeD"></div>
@@ -226,6 +259,16 @@
         <div class="bs-cards"><div class="bs-sc"><i class="bs-sct"></i><i class="bs-sci"></i><i class="bs-scv"></i><i class="bs-scf"></i></div><div class="bs-sc"><i class="bs-sct"></i><i class="bs-sci"></i><i class="bs-scv"></i><i class="bs-scf"></i></div><div class="bs-sc"><i class="bs-sct"></i><i class="bs-sci"></i><i class="bs-scv"></i><i class="bs-scf"></i></div><div class="bs-sc"><i class="bs-sct"></i><i class="bs-sci"></i><i class="bs-scv"></i><i class="bs-scf"></i></div><div class="bs-sc"><i class="bs-sct"></i><i class="bs-sci"></i><i class="bs-scv"></i><i class="bs-scf"></i></div><div class="bs-sc"><i class="bs-sct"></i><i class="bs-sci"></i><i class="bs-scv"></i><i class="bs-scf"></i></div></div>
         <div class="bs-tbl"><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i></div>
       </div></div>
+    <div class="sk-ios" aria-hidden="true">
+        <div class="ski-bar"><i class="ski-c"></i><span></span><i class="ski-c"></i><i class="ski-c"></i></div>
+        <i class="ski-title"></i>
+        <div class="ski-card ski-hero"><div class="ski-row"><i class="ski-sq"></i><i class="ski-l" style="width:90px"></i></div><i class="ski-big"></i><i class="ski-l" style="width:60px"></i></div>
+        <div class="ski-tiles"><div class="ski-card"><i class="ski-sq"></i><i class="ski-l" style="width:80px"></i><i class="ski-m"></i></div><div class="ski-card"><i class="ski-sq"></i><i class="ski-l" style="width:90px"></i><i class="ski-m"></i></div></div>
+        <div class="ski-card ski-group"><div class="ski-li"><i class="ski-sq"></i><span><i class="ski-l" style="width:70px"></i><i class="ski-s"></i></span><i class="ski-amt"></i></div><div class="ski-li"><i class="ski-sq"></i><span><i class="ski-l" style="width:80px"></i><i class="ski-s"></i></span><i class="ski-amt"></i></div><div class="ski-li"><i class="ski-sq"></i><span><i class="ski-l" style="width:96px"></i><i class="ski-s"></i></span><i class="ski-amt"></i></div></div>
+        <i class="ski-h"></i>
+        <div class="ski-list"><div class="ski-li"><i class="ski-av"></i><span><i class="ski-l" style="width:150px"></i><i class="ski-s"></i></span><i class="ski-amt"></i></div><div class="ski-li"><i class="ski-av"></i><span><i class="ski-l" style="width:120px"></i><i class="ski-s"></i></span><i class="ski-amt"></i></div><div class="ski-li"><i class="ski-av"></i><span><i class="ski-l" style="width:140px"></i><i class="ski-s"></i></span><i class="ski-amt"></i></div><div class="ski-li"><i class="ski-av"></i><span><i class="ski-l" style="width:100px"></i><i class="ski-s"></i></span><i class="ski-amt"></i></div></div>
+        <div class="ski-bottom"><i class="ski-search"></i><i class="ski-c ski-big-c"></i></div>
+      </div>
     <div class="bs-a-phone">
       <div class="bs-bar"><i class="bs-c"></i><i class="bs-pill"></i><span></span><i class="bs-c"></i><i class="bs-c"></i><i class="bs-c"></i><i class="bs-c"></i><i class="bs-c"></i></div>
       <div class="bs-list"><div><i class="bs-ic"></i><i class="bs-l1"></i><i class="bs-l2"></i><i class="bs-amt"></i></div><div><i class="bs-ic"></i><i class="bs-l1"></i><i class="bs-l2"></i><i class="bs-amt"></i></div><div><i class="bs-ic"></i><i class="bs-l1"></i><i class="bs-l2"></i><i class="bs-amt"></i></div><div><i class="bs-ic"></i><i class="bs-l1"></i><i class="bs-l2"></i><i class="bs-amt"></i></div><div><i class="bs-ic"></i><i class="bs-l1"></i><i class="bs-l2"></i><i class="bs-amt"></i></div><div><i class="bs-ic"></i><i class="bs-l1"></i><i class="bs-l2"></i><i class="bs-amt"></i></div></div>
