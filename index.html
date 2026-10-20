@@ -284,6 +284,11 @@
       #bootScreen .skp-ios .ski-search { flex: 1; height: 50px; border-radius: 25px; }
       #bootScreen .skp-ios .ski-big-c { width: 50px; height: 50px; }
     }
+    @media (max-width: 768px) {   /* skeleton bottom bar: placed explicitly (a stretching search shape vanished on phones) */
+      html body #bootScreen .sk-ios .ski-bottom { display: block !important; height: 50px !important; z-index: 3; }
+      html body #bootScreen .sk-ios .ski-bottom .ski-search { position: absolute !important; left: 0 !important; right: 62px !important; top: 0 !important; width: auto !important; height: 50px !important; border-radius: 25px !important; }
+      html body #bootScreen .sk-ios .ski-bottom .ski-big-c { position: absolute !important; right: 0 !important; top: 0 !important; width: 50px !important; height: 50px !important; }
+    }
 </style>
 </head>
 <body>
@@ -393,6 +398,20 @@
       var vis = window.visualViewport ? window.visualViewport.height : window.innerHeight;
       return { top: 0, bottom: Math.max(0, Math.round(pageH - vis)) };   // top: nothing extra (the page already starts below the status bar)
     }
+    // Keyboard: tell the app which part of its screen is still visible above the keyboard (in the app's own coordinates),
+    // so an open sheet can sit right on top of the keyboard instead of being covered by it (21 Oct)
+    var lastKb = '';
+    function sendKb() {
+      var vv = window.visualViewport, fr = document.getElementById('app');
+      if (!vv || !fr || !insetTarget) return;
+      var r = fr.getBoundingClientRect();
+      var top = Math.round(vv.offsetTop - r.top), bottom = Math.round(vv.offsetTop + vv.height - r.top);
+      var open = vv.height < window.innerHeight * 0.8;
+      var key = open ? top + ',' + bottom : 'closed';
+      if (key === lastKb) return; lastKb = key;
+      try { insetTarget.w.postMessage({ type: 'ghl-kb', open: open, top: top, bottom: bottom }, insetTarget.o); } catch (e) {}
+    }
+    if (window.visualViewport) { window.visualViewport.addEventListener('resize', sendKb); window.visualViewport.addEventListener('scroll', sendKb); }
     var lastInset = null;
     function sendInset() {
       // keyboard open: keep the last value (the visible area changes on every key while typing → the open form jumped)
