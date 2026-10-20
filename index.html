@@ -406,7 +406,8 @@
       if (!vv || !fr || !insetTarget) return;
       var r = fr.getBoundingClientRect();
       var top = Math.round(vv.offsetTop - r.top), bottom = Math.round(vv.offsetTop + vv.height - r.top);
-      var open = vv.height < window.innerHeight * 0.8;
+      // iPhone: innerHeight shrinks with the keyboard (it never looked open) — compare with the page height, which stays put
+      var open = vv.height < Math.max(window.innerHeight, document.documentElement.clientHeight) * 0.8;
       var key = open ? top + ',' + bottom : 'closed';
       if (key === lastKb) return; lastKb = key;
       try { insetTarget.w.postMessage({ type: 'ghl-kb', open: open, top: top, bottom: bottom }, insetTarget.o); } catch (e) {}
