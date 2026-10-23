@@ -44,9 +44,9 @@
     })();
   </script>
   <title>GHL Boys Club</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+  <link rel="icon" href="favicon.svg?v=424" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=424">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png?v=424">
   <style>
     /* The app fills the whole screen. Google's "created by an Apps Script user" bar is only added when the
        app is opened directly, not when it is shown inside another page. */
@@ -205,11 +205,11 @@
        Placed by the SCREEN height (vh), not the page: the iPhone home-screen app starts with a page 20 pt shorter and
        then grows (recording 17 Oct: the logo dropped a little at 1.6 s); the screen height never changes */
     html.fd-launch body::after { content: ''; position: fixed; z-index: 10; left: 50%; top: 46.3vh; width: 73px; height: 73px; margin: -36.5px 0 0 -36.5px;
-      background: url('icon.svg') center / contain no-repeat; border-radius: 18px; }
+      background: url('icon.svg?v=424') center / contain no-repeat; border-radius: 18px; }
     html.fd-launch #app { visibility: hidden; }
     /* signed in: the same logo for a moment, over the plain background, then the loading screen fades in */
     html.boot body::after { content: ''; position: fixed; z-index: 60; left: 50%; top: 46.3vh; width: 73px; height: 73px; margin: -36.5px 0 0 -36.5px; pointer-events: none;
-      background: url('icon.svg') center / contain no-repeat; border-radius: 18px; opacity: 0; transition: opacity .3s ease; }
+      background: url('icon.svg?v=424') center / contain no-repeat; border-radius: 18px; opacity: 0; transition: opacity .3s ease; }
     html.boot.fd-logo body::after { opacity: 1; }
     #bootScreen > * { transition: opacity .3s ease; }
     html.boot.fd-logo #bootScreen > * { opacity: 0; }
