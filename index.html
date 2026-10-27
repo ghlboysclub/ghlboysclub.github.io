@@ -245,9 +245,11 @@
       #bootScreen .sk-ios .ski-h { width: 200px; height: 22px; margin: 10px 4px 0; border-radius: 7px; }
       #bootScreen .sk-ios .ski-list { padding: 0 4px; }
       #bootScreen .sk-ios .ski-av { width: 38px; height: 38px; border-radius: 50%; }
-      #bootScreen .sk-ios .ski-bottom { position: absolute; left: 20px; right: 20px; bottom: calc(14px + env(safe-area-inset-bottom, 0px) + var(--host-bottom, 0px)); display: flex; gap: 12px; }
+      #bootScreen .sk-ios .ski-bottom { position: absolute; left: 16px; right: 16px; bottom: calc(10px + env(safe-area-inset-bottom, 0px) + var(--host-bottom, 0px)); display: flex; gap: 8px; }
       #bootScreen .sk-ios .ski-search { flex: 1; height: 50px; border-radius: 25px; }
-      #bootScreen .sk-ios .ski-big-c { width: 50px; height: 50px; }
+      #bootScreen .sk-ios .ski-big-c { width: 62px; height: 62px; }
+      #bootScreen .sk-ios .ski-bottom .ski-tabs { flex: 1 1 auto; min-width: 0; width: auto; height: 62px; border-radius: 31px; }   /* the tab bar (28 Oct) */
+      #bootScreen .sk-ios .ski-bottom .ski-big-c { flex: 0 0 62px; }
     }
     html.fd-ios:not(.fd-standalone) #bootScreen .sk-ios .ski-bottom { bottom: calc(14px + 100lvh + 58px - 100dvh + 160px) !important; }
     /* start-up screen (21 Oct): partners — the same shapes as the new portal */
@@ -286,9 +288,10 @@
       #bootScreen .skp-ios .ski-big-c { width: 50px; height: 50px; }
     }
     @media (max-width: 768px) {   /* skeleton bottom bar: placed explicitly (a stretching search shape vanished on phones) */
-      html body #bootScreen .sk-ios .ski-bottom { display: block !important; height: 50px !important; z-index: 3; }
+      html body #bootScreen .sk-ios .ski-bottom { display: block !important; height: 62px !important; z-index: 3; }
       html body #bootScreen .sk-ios .ski-bottom .ski-search { position: absolute !important; left: 0 !important; right: 62px !important; top: 0 !important; width: auto !important; height: 50px !important; border-radius: 25px !important; }
-      html body #bootScreen .sk-ios .ski-bottom .ski-big-c { position: absolute !important; right: 0 !important; top: 0 !important; width: 50px !important; height: 50px !important; }
+      html body #bootScreen .sk-ios .ski-bottom .ski-big-c { position: absolute !important; right: 0 !important; top: 0 !important; width: 62px !important; height: 62px !important; }
+      html body #bootScreen .sk-ios .ski-bottom .ski-tabs { position: absolute !important; left: 0 !important; right: 70px !important; top: 0 !important; width: auto !important; height: 62px !important; border-radius: 31px !important; }
     }
     /* ===== Desktop (21 Oct): loading screens shaped like the macOS 27 layout (admin: grey sidebar with the search row,
        toolbar capsules, six summary boxes, striped list + side boxes; portal: toolbar, five boxes, striped lists) ===== */
@@ -363,14 +366,14 @@
         <div class="bs-tbl"><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i></div>
       </div></div>
     <div class="sk-ios" aria-hidden="true">
-        <div class="ski-bar"><i class="ski-c"></i><span></span><i class="ski-c"></i><i class="ski-c"></i></div>
+        <div class="ski-bar"><span></span><i class="ski-c"></i><i class="ski-c"></i><i class="ski-c"></i></div>
         <i class="ski-title"></i>
         <div class="ski-card ski-hero"><div class="ski-row"><i class="ski-sq"></i><i class="ski-l" style="width:90px"></i></div><i class="ski-big"></i><i class="ski-l" style="width:60px"></i></div>
         <div class="ski-tiles"><div class="ski-card"><i class="ski-sq"></i><i class="ski-l" style="width:80px"></i><i class="ski-m"></i></div><div class="ski-card"><i class="ski-sq"></i><i class="ski-l" style="width:90px"></i><i class="ski-m"></i></div></div>
         <div class="ski-card ski-group"><div class="ski-li"><i class="ski-sq"></i><span><i class="ski-l" style="width:70px"></i><i class="ski-s"></i></span><i class="ski-amt"></i></div><div class="ski-li"><i class="ski-sq"></i><span><i class="ski-l" style="width:80px"></i><i class="ski-s"></i></span><i class="ski-amt"></i></div><div class="ski-li"><i class="ski-sq"></i><span><i class="ski-l" style="width:96px"></i><i class="ski-s"></i></span><i class="ski-amt"></i></div></div>
         <i class="ski-h"></i>
         <div class="ski-list"><div class="ski-li"><i class="ski-av"></i><span><i class="ski-l" style="width:150px"></i><i class="ski-s"></i></span><i class="ski-amt"></i></div><div class="ski-li"><i class="ski-av"></i><span><i class="ski-l" style="width:120px"></i><i class="ski-s"></i></span><i class="ski-amt"></i></div><div class="ski-li"><i class="ski-av"></i><span><i class="ski-l" style="width:140px"></i><i class="ski-s"></i></span><i class="ski-amt"></i></div><div class="ski-li"><i class="ski-av"></i><span><i class="ski-l" style="width:100px"></i><i class="ski-s"></i></span><i class="ski-amt"></i></div></div>
-        <div class="ski-bottom"><i class="ski-search"></i><i class="ski-c ski-big-c"></i></div>
+        <div class="ski-bottom"><i class="ski-tabs"></i><i class="ski-c ski-big-c"></i></div>
       </div>
     <div class="bs-a-phone">
       <div class="bs-bar"><i class="bs-c"></i><i class="bs-pill"></i><span></span><i class="bs-c"></i><i class="bs-c"></i><i class="bs-c"></i><i class="bs-c"></i><i class="bs-c"></i></div>
