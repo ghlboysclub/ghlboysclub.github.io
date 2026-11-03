@@ -41,6 +41,9 @@
       if (/iP(hone|ad|od)/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) h.classList.add('fd-ios');
       if (window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)) h.classList.add('fd-standalone');
       if (r === 'partner') h.classList.add('boot-partner');
+      // reopening on another page (reload, or within 6 h like the app): that page's loading-screen shape, not the Dashboard's
+      try { var pg = sessionStorage.getItem('GHL_FD_PAGE') || ''; if (!pg) { var lp = JSON.parse(localStorage.getItem('GHL_FD_PAGE') || 'null'); if (lp && Date.now() - lp.t < 6 * 3600e3) pg = lp.page || ''; }
+        if (pg && pg !== 'dashboard' && pg !== 'account') h.classList.add('sk-pg-list'); } catch (e) {}
     })();
   </script>
   <title>GHL Boys Club</title>
@@ -347,6 +350,10 @@
       .sk-mac .skm-sbox { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
       .sk-mac .skm-sh { display: flex; justify-content: space-between; align-items: center; } .sk-mac .skm-sh i { height: 10px; }
       .sk-mac .skm-bar2 { height: 4px; border-radius: 2px; margin-top: -4px; }
+      /* any page but the Dashboard (reopened after a reload): the list page shape — toolbar, then the table across the full width */
+      html.sk-pg-list .sk-mac :is(.skm-boxes, .skm-flow, .skm-aside, .skm-lt) { display: none !important; }
+      html.sk-pg-list .sk-mac .skm-split { display: block !important; }
+      html.sk-pg-list .sk-mac .skm-body { padding: 6px 10px 0 !important; }
       .sk-mac .skm-fl { display: flex; align-items: center; gap: 10px; } .sk-mac .skm-fl .skm-dot { width: 8px; height: 8px; border-radius: 50%; }
       .sk-mac .skm-flow { height: auto; padding: 16px 18px 12px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; }
       .sk-mac .skm-fbars { display: flex; justify-content: space-around; align-items: flex-end; height: 128px; }
@@ -572,6 +579,11 @@
         return;
       }
       // the app scrolled the field being typed in to the top of its sheet: undo the page shift iOS made to reveal it
+      if (d.type === 'ghl-page') {   // the page the app is on: the loading screen on the next start has its shape
+        var pv = String(d.page || '').slice(0, 60);
+        try { if (pv) { sessionStorage.setItem('GHL_FD_PAGE', pv); localStorage.setItem('GHL_FD_PAGE', JSON.stringify({ page: pv, t: Date.now() })); } else { sessionStorage.removeItem('GHL_FD_PAGE'); localStorage.removeItem('GHL_FD_PAGE'); } } catch (e) {}
+        return;
+      }
       if (d.type === 'ghl-pin') {
         if (window.scrollY || window.scrollX || document.documentElement.scrollTop || document.body.scrollTop) { window.scrollTo(0, 0); document.documentElement.scrollTop = document.body.scrollTop = 0; }
         return;
