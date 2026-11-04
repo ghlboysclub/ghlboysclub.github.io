@@ -81,8 +81,8 @@
     html.fd-ios.fd-standalone body { bottom: auto; }
     /* in Safari the page behaves like a normal page, so it runs under Safari's floating toolbar (like any website) */
     /* v534: iOS 26/27 blurs the top ~40 pt of a Home Screen web app (scroll edge effect, no switch for it; an opaque strip did not help):
-       there the loading screen's top bar sits 18 pt lower, like the app's */
-    html.fd-ios.fd-standalone.boot:not(.boot-partner) body #bootScreen .sk-ios:not(#_):not(#__) { padding-top: calc(18px + env(safe-area-inset-top, 0px)) !important; }
+       there the loading screen's top bar sits 16 pt lower, like the app's */
+    html.fd-ios.fd-standalone.boot:not(.boot-partner) body #bootScreen .sk-ios:not(#_):not(#__) { padding-top: calc(16px + env(safe-area-inset-top, 0px)) !important; }
     #fdProbeL, #fdProbeD { position: fixed; top: 0; left: 0; width: 1px; visibility: hidden; pointer-events: none; }
     #fdProbeL { height: 100lvh; } #fdProbeD { height: 100dvh; }
     /* Home-screen app on iPhone: the page height leaves out the status bar, so the app stopped short and a strip
