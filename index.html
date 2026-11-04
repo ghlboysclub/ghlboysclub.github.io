@@ -291,6 +291,8 @@
       #bootScreen .skp-ios .ski-bottom { position: fixed; left: 20px; right: 20px; bottom: calc(14px + env(safe-area-inset-bottom, 0px) + var(--host-bottom, 0px)); display: flex; gap: 12px; }
       #bootScreen .skp-ios .ski-search { flex: 1; height: 50px; border-radius: 25px; }
       #bootScreen .skp-ios .ski-big-c { width: 50px; height: 50px; }
+      /* the tab bar (4 Nov): the portal now has the admin's 62 pt glass bar (no Search circle beside it) */
+      #bootScreen .skp-ios .ski-ptabs { position: fixed; left: 16px; right: 16px; bottom: calc(10px + env(safe-area-inset-bottom, 0px) + var(--host-bottom, 0px)); height: 62px; border-radius: 31px; z-index: 3; }
     }
     @media (max-width: 768px) {   /* skeleton bottom bar: placed explicitly (a stretching search shape vanished on phones) */
       html body #bootScreen .sk-ios .ski-bottom { display: block !important; height: 62px !important; z-index: 3; }
@@ -432,11 +434,12 @@
     </div>
     <div class="skp-ios" aria-hidden="true">
         <div class="ski-bar"><span></span><i class="ski-c"></i><i class="ski-c"></i></div>
-        <i class="ski-title" style="width:170px"></i><i class="ski-sub"></i>
+        <i class="ski-title" style="width:160px"></i>
         <div class="ski-card ski-group"><div class="ski-li"><i class="ski-sq"></i><span><i class="ski-l" style="width:110px"></i><i class="ski-s" style="width:120px"></i></span><i class="ski-amt"></i></div><div class="ski-li"><i class="ski-sq"></i><span><i class="ski-l" style="width:100px"></i><i class="ski-s" style="width:90px"></i></span><i class="ski-amt"></i></div><div class="ski-li"><i class="ski-sq"></i><span><i class="ski-l" style="width:90px"></i><i class="ski-s" style="width:80px"></i></span><i class="ski-amt"></i></div><div class="ski-li"><i class="ski-sq"></i><span><i class="ski-l" style="width:95px"></i><i class="ski-s" style="width:100px"></i></span><i class="ski-amt"></i></div><div class="ski-li"><i class="ski-sq"></i><span><i class="ski-l" style="width:115px"></i><i class="ski-s" style="width:120px"></i></span><i class="ski-amt"></i></div></div>
         <i class="ski-h" style="width:150px"></i><i class="ski-sum"></i><div class="ski-list"><div class="ski-li"><span><i class="ski-l" style="width:110px"></i><i class="ski-s"></i></span><i class="ski-amt"></i></div></div>
         <i class="ski-h" style="width:170px"></i><i class="ski-sum"></i><div class="ski-list"><div class="ski-li"><span><i class="ski-l" style="width:110px"></i><i class="ski-s"></i></span><i class="ski-amt"></i></div></div>
         <i class="ski-h" style="width:200px"></i><i class="ski-sum"></i><div class="ski-list"><div class="ski-li"><span><i class="ski-l" style="width:120px"></i><i class="ski-s"></i></span><i class="ski-amt"></i></div><div class="ski-li"><span><i class="ski-l" style="width:100px"></i><i class="ski-s"></i></span><i class="ski-amt"></i></div></div>
+        <i class="ski-ptabs"></i>
       </div>
     <div class="bs-p-phone">
       <div class="bs-bar"><i class="bs-pt"></i><span></span><i class="bs-c"></i><i class="bs-c"></i><i class="bs-c"></i><i class="bs-c"></i><i class="bs-c"></i></div>
