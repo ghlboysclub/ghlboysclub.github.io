@@ -80,12 +80,9 @@
     html.fd-ios.fd-standalone, html.fd-ios.fd-standalone body { height: 100vh; }
     html.fd-ios.fd-standalone body { bottom: auto; }
     /* in Safari the page behaves like a normal page, so it runs under Safari's floating toolbar (like any website) */
-    /* v532 (4 Nov): iOS 26/27 home-screen apps blur the top ~40 pt of the page under the status bar (scroll edge effect); the app's buttons
-       now sit right under the status bar (like the GBC app), inside that blur. A full-width, opaque box at the top edge in the app's own
-       colour makes iOS tint the status bar with it instead of blurring. Home-screen app only. */
-    #fdTop { display: none; }
-    html.fd-standalone #fdTop { display: block; position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top); z-index: 40; pointer-events: none; background: #000; }
-    html.fd-standalone[data-theme="light"] #fdTop { background: #f2f2f7; }
+    /* v534: iOS 26/27 blurs the top ~40 pt of a Home Screen web app (scroll edge effect, no switch for it; an opaque strip did not help):
+       there the loading screen's top bar sits 18 pt lower, like the app's */
+    html.fd-ios.fd-standalone.boot:not(.boot-partner) body #bootScreen .sk-ios:not(#_):not(#__) { padding-top: calc(18px + env(safe-area-inset-top, 0px)) !important; }
     #fdProbeL, #fdProbeD { position: fixed; top: 0; left: 0; width: 1px; visibility: hidden; pointer-events: none; }
     #fdProbeL { height: 100lvh; } #fdProbeD { height: 100dvh; }
     /* Home-screen app on iPhone: the page height leaves out the status bar, so the app stopped short and a strip
@@ -467,7 +464,6 @@
     </div>
   </div>
   <iframe id="app" title="GHL Boys Club" allow="clipboard-write"></iframe>
-  <div id="fdTop" aria-hidden="true"></div>
   <script>
     // "Keep me signed in": the app tells this page its device key, and this page keeps it in its own storage and
     // in its address (?k=…), so a phone home-screen icon opens straight in. The key goes back to the app on load.
@@ -551,7 +547,7 @@
       if (lastInset && lastInset.bottom === i.bottom && lastInset.top === i.top) return;
       lastInset = i;
       document.documentElement.style.setProperty('--host-bottom', i.bottom + 'px');
-      if (insetTarget) { try { insetTarget.w.postMessage({ type: 'ghl-inset', bottom: i.bottom, top: i.top }, insetTarget.o); } catch (e) {} }
+      if (insetTarget) { try { insetTarget.w.postMessage({ type: 'ghl-inset', bottom: i.bottom, top: i.top, homeScreen: document.documentElement.classList.contains('fd-ios') && document.documentElement.classList.contains('fd-standalone') }, insetTarget.o); } catch (e) {} }
     }
     window.addEventListener('resize', sendInset);
     window.addEventListener('orientationchange', function () { setTimeout(sendInset, 300); });
@@ -580,7 +576,6 @@
       window.__fdTheme = fdTheme;
       if (window.__fdShown) { try { localStorage.setItem('GHL_FD_THEME', fdTheme); } catch (err) {} }
       document.documentElement.style.background = document.body.style.background = bg;
-      var ft = document.getElementById('fdTop'); if (ft) ft.style.background = bg;
       document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.setAttribute('content', bg); });
     }
     window.addEventListener('message', function (e) {
