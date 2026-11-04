@@ -398,6 +398,18 @@
       #bootScreen .sk-mac .skm-ic { border-radius: 5px; }
     }
 </style>
+<style>
+    /* v532: the admin loading screen uses the GBC app's bars: buttons right under the status bar (filter · search · + capsule, bell, account),
+       full-width tab bar 21 pt from the sides and bottom, no search circle */
+    html.boot:not(.boot-partner) body #bootScreen .sk-ios:not(#_) { padding-top: calc(env(safe-area-inset-top, 0px) + var(--host-top, 0px)) !important; }
+    html body #bootScreen .sk-ios .ski-bar:not(#_) { height: 44px !important; gap: 12px !important; padding-right: 4px !important; }
+    html body #bootScreen .sk-ios .ski-bar .ski-grp:not(#_) { width: 157px !important; height: 44px !important; border-radius: 22px !important; flex: 0 0 157px; }
+    html body #bootScreen .sk-ios .ski-bar .ski-cap:not(#_) { width: 62px !important; height: 44px !important; border-radius: 22px !important; flex: 0 0 62px; }
+    html:not(.fd-ios) body #bootScreen .sk-ios .ski-bottom:not(#_), html.fd-standalone body #bootScreen .sk-ios .ski-bottom:not(#_) { left: 21px !important; right: 21px !important; bottom: max(21px, calc(env(safe-area-inset-bottom, 0px) + var(--host-bottom, 0px) - 8px)) !important; }
+    html body #bootScreen .sk-ios .ski-bottom:not(#_) { left: 21px !important; right: 21px !important; }
+    html body #bootScreen .sk-ios .ski-bottom .ski-tabs:not(#_) { right: 0 !important; }
+    html body #bootScreen .sk-ios .ski-bottom .ski-big-c:not(#_) { display: none !important; }
+  </style>
 </head>
 <body>
   <div id="fdProbeL"></div><div id="fdProbeD"></div>
@@ -410,7 +422,7 @@
         <div class="bs-tbl"><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i><i class="bs-row"></i></div>
       </div></div>
     <div class="sk-ios" aria-hidden="true">
-        <div class="ski-bar"><span></span><i class="ski-c"></i><i class="ski-c"></i><i class="ski-c"></i></div>
+        <div class="ski-bar"><span></span><i class="ski-c ski-grp"></i><i class="ski-c"></i><i class="ski-c ski-cap"></i></div>
         <i class="ski-title"></i>
         <div class="ski-card ski-hero"><div class="ski-row"><i class="ski-sq"></i><i class="ski-l" style="width:90px"></i></div><i class="ski-big"></i><i class="ski-l" style="width:60px"></i></div>
         <div class="ski-tiles"><div class="ski-card"><i class="ski-sq"></i><i class="ski-l" style="width:80px"></i><i class="ski-m"></i></div><div class="ski-card"><i class="ski-sq"></i><i class="ski-l" style="width:90px"></i><i class="ski-m"></i></div></div>
