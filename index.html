@@ -413,18 +413,6 @@
     html body #bootScreen .sk-ios .ski-bottom .ski-tabs:not(#_) { right: 0 !important; }
     html body #bootScreen .sk-ios .ski-bottom .ski-big-c:not(#_) { display: none !important; }
   </style>
-  <style>
-    /* 11 Nov 2026 (user: "loading animation not matching iOS"): phones show Apple's activity indicator (UIActivityIndicatorView,
-       8 spokes, system grey, 20 pt) in the middle of the screen while the app loads — no grey shimmering placeholder rows (Apple's
-       apps don't use them). Same rule in Index.html, Login.html, PartnerPortal.html and the front door (site index.html). */
-    @media (max-width: 768px) {
-      :is(.sk-ios, .skp-ios) > *, :is(.sk-ios, .skp-ios) > * * { visibility: hidden !important; animation: none !important; }
-      :is(.sk-ios, .skp-ios)::after { content: ''; position: fixed; left: 50%; top: 50%; width: 20px; height: 20px; margin: -10px 0 0 -10px; visibility: visible;
-        background: url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2020%2020'%3E%3Cline%20x1='10'%20y1='2.6'%20x2='10'%20y2='6.2'%20stroke='%238e8e93'%20stroke-width='2.1'%20stroke-linecap='round'%20opacity='1.0'%20transform='rotate(0%2010%2010)'/%3E%3Cline%20x1='10'%20y1='2.6'%20x2='10'%20y2='6.2'%20stroke='%238e8e93'%20stroke-width='2.1'%20stroke-linecap='round'%20opacity='0.91'%20transform='rotate(-45%2010%2010)'/%3E%3Cline%20x1='10'%20y1='2.6'%20x2='10'%20y2='6.2'%20stroke='%238e8e93'%20stroke-width='2.1'%20stroke-linecap='round'%20opacity='0.82'%20transform='rotate(-90%2010%2010)'/%3E%3Cline%20x1='10'%20y1='2.6'%20x2='10'%20y2='6.2'%20stroke='%238e8e93'%20stroke-width='2.1'%20stroke-linecap='round'%20opacity='0.73'%20transform='rotate(-135%2010%2010)'/%3E%3Cline%20x1='10'%20y1='2.6'%20x2='10'%20y2='6.2'%20stroke='%238e8e93'%20stroke-width='2.1'%20stroke-linecap='round'%20opacity='0.64'%20transform='rotate(-180%2010%2010)'/%3E%3Cline%20x1='10'%20y1='2.6'%20x2='10'%20y2='6.2'%20stroke='%238e8e93'%20stroke-width='2.1'%20stroke-linecap='round'%20opacity='0.55'%20transform='rotate(-225%2010%2010)'/%3E%3Cline%20x1='10'%20y1='2.6'%20x2='10'%20y2='6.2'%20stroke='%238e8e93'%20stroke-width='2.1'%20stroke-linecap='round'%20opacity='0.46'%20transform='rotate(-270%2010%2010)'/%3E%3Cline%20x1='10'%20y1='2.6'%20x2='10'%20y2='6.2'%20stroke='%238e8e93'%20stroke-width='2.1'%20stroke-linecap='round'%20opacity='0.37'%20transform='rotate(-315%2010%2010)'/%3E%3C/svg%3E") center / contain no-repeat; animation: ggLoad8 .8s steps(8) infinite; pointer-events: none; }
-      @keyframes ggLoad8 { to { transform: rotate(360deg); } }
-      @media (prefers-reduced-motion: reduce) { :is(.sk-ios, .skp-ios)::after { animation-duration: 1.6s; } }
-    }
-  </style>
 </head>
 <body>
   <div id="fdProbeL"></div><div id="fdProbeD"></div>
