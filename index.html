@@ -40,7 +40,7 @@
       var ua = navigator.userAgent || '';
       if (/iP(hone|ad|od)/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) h.classList.add('fd-ios');
       if (window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)) h.classList.add('fd-standalone');
-      if (r === 'partner') h.classList.add('boot-partner');
+      if (r === 'partner') h.classList.add('boot-partner', 'fd-partner');
       // reopening on another page (reload, or within 6 h like the app): that page's loading-screen shape, not the Dashboard's
       try { var pg = sessionStorage.getItem('GHL_FD_PAGE') || ''; if (!pg) { var lp = JSON.parse(localStorage.getItem('GHL_FD_PAGE') || 'null'); if (lp && Date.now() - lp.t < 6 * 3600e3) pg = lp.page || ''; }
         var kd = pg === 'financial-position' ? 'fp' : pg === 'wise-balances' ? 'wb' : /^(general|preferences)$/.test(pg) ? 'set' : (pg && pg !== 'dashboard' && pg !== 'account') ? 'list' : '';
@@ -413,6 +413,12 @@
     html body #bootScreen .sk-ios .ski-bottom .ski-tabs:not(#_) { right: 0 !important; }
     html body #bootScreen .sk-ios .ski-bottom .ski-big-c:not(#_) { display: none !important; }
   </style>
+  <style>
+    /* 12 Nov 2026 (user's screenshot): a hard swipe in the Partners Portal (which scrolls its own page) carried on into this page — the
+       whole app slid up ~115 pt and stayed there, tab bar cut. While a partner is signed in this page never scrolls or bounces (the admin
+       app scrolls inside its own box, so it never reached here). */
+    html.fd-partner, html.fd-partner body { overflow: hidden !important; overscroll-behavior: none !important; }
+  </style>
 </head>
 <body>
   <div id="fdProbeL"></div><div id="fdProbeD"></div>
@@ -631,6 +637,7 @@
       if (d.type === 'ghl-inset-request') { insetTarget = { w: e.source, o: e.origin }; lastInset = null; sendInset(); return; }
       if (d.type === 'ghl-ready') {
         if (d.role === 'admin' || d.role === 'partner') { try { localStorage.setItem('GHL_FD_ROLE', d.role); } catch (err) {} }
+        document.documentElement.classList.toggle('fd-partner', d.role === 'partner');
         window.__fdShown = true;
         if (window.__fdPendingBg) { fdApplyBg(window.__fdPendingBg); window.__fdPendingBg = ''; }   // the app's real theme, now it is showing
         if (window.__fdTheme) { try { localStorage.setItem('GHL_FD_THEME', window.__fdTheme); } catch (err) {} }
