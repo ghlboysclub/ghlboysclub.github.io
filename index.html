@@ -710,6 +710,16 @@
       }
       if (d.type === 'ghl-inset-request') { insetTarget = { w: e.source, o: e.origin }; lastInset = null; sendInset(); return; }
       if (d.type === 'ghl-ready') {
+        // 18 Nov 2026 (Mac Dock app): closing and reopening restored Google's inner frame page as the whole window (white;
+        // Back led to the app) — the window's latest history entry was the app frame's. In the web-app window (not a Safari
+        // tab) the front door adds its own entry once the app shows, so the window restores the front door; Back stays here.
+        try {
+          if (document.documentElement.classList.contains('fd-standalone') && !window.__fdPushed) {
+            window.__fdPushed = true;
+            history.pushState({ fd: 1 }, '', location.href);
+            window.addEventListener('popstate', function (ev) { if (!ev.state || !ev.state.fd) history.pushState({ fd: 1 }, '', location.href); });
+          }
+        } catch (err) {}
         if (d.role === 'admin' || d.role === 'partner') { try { localStorage.setItem('GHL_FD_ROLE', d.role); } catch (err) {} }
         document.documentElement.classList.toggle('fd-partner', d.role === 'partner');
         window.__fdShown = true;
