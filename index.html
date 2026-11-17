@@ -524,7 +524,8 @@
       <div class="bs-card"><i class="bs-ct"></i><i class="bs-pr"></i><i class="bs-pr"></i></div>
     </div>
   </div>
-  <iframe id="app" title="GHL Boys Club" allow="clipboard-write"></iframe>
+  <!-- 18 Nov 2026: sandboxed WITHOUT top navigation — on the Mac web app the whole window was found navigated to Google's inner frame page (blank; Back returned to the app). Nothing inside the app frame can move this window any more. -->
+  <iframe id="app" title="GHL Boys Club" allow="clipboard-write" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-downloads allow-storage-access-by-user-activation"></iframe>
   <script>
     // "Keep me signed in": the app tells this page its device key, and this page keeps it in its own storage and
     // in its address (?k=…), so a phone home-screen icon opens straight in. The key goes back to the app on load.
