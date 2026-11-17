@@ -658,6 +658,24 @@
         } catch (err) { try { localStorage.removeItem('GHL_DATA'); } catch (e2) {} }
         return;
       }
+      // 18 Nov 2026: the last signed-in user (no secrets: email, name, type, the app's fingerprint, display choices), so the
+      // app can open at once from its copies while the device key is checked on the server
+      if (d.type === 'ghl-user-save') {
+        try {
+          var u = d.user;
+          if (!u || typeof u !== 'object' || !u.who) localStorage.removeItem('GHL_LAST_USER');
+          else localStorage.setItem('GHL_LAST_USER', JSON.stringify({ who: String(u.who).slice(0, 200), name: String(u.name || '').slice(0, 200), type: String(u.type || '').slice(0, 20),
+            share: u.share, rowIndex: Number(u.rowIndex) || 0, fp: /^[0-9a-f]{64}$/.test(String(u.fp || '')) ? String(u.fp) : '', prefs: u.prefs && typeof u.prefs === 'object' ? u.prefs : null, t: Date.now() }));
+        } catch (err) {}
+        return;
+      }
+      if (d.type === 'ghl-user-get') {
+        var lu = null;
+        try { lu = JSON.parse(localStorage.getItem('GHL_LAST_USER') || 'null'); } catch (err) {}
+        if (lu && Date.now() - (lu.t || 0) > 30 * 24 * 3600 * 1000) lu = null;   // 30 days, like the device key
+        try { e.source.postMessage({ type: 'ghl-user', user: lu }, e.origin); } catch (err) {}
+        return;
+      }
       if (d.type === 'ghl-cache-get') {
         var saved = null;
         try { saved = JSON.parse(localStorage.getItem('GHL_DATA') || 'null'); } catch (err) {}
