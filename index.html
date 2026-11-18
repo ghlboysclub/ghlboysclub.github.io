@@ -804,5 +804,9 @@
       setInterval(show, 1000);
     })();
   </script>
+  <script>
+    // 19 Nov 2026: the front door is kept on this device (sw.js) so the app opens at once, without waiting for the network
+    try { if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(function () {}); } catch (e) {}
+  </script>
 </body>
 </html>
