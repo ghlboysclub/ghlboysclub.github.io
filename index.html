@@ -34,7 +34,8 @@
       window.__fdSignedOut = signedOut;
       h.classList.add(hasKey ? 'boot' : 'fd-launch');
       // signed in: the logo first (like an iPhone app opening), then the app-shaped loading screen
-      if (hasKey) { h.classList.add('fd-logo'); setTimeout(function () { h.classList.remove('fd-logo'); }, 900); }
+      // 19 Nov 2026: no logo step (it faded in, then flickered over the loading screen) — Apple: the launch screen looks like the
+      // app's first screen, not a splash; the app-shaped loading screen shows from the first frame
       window.__fdSavedTheme = (function () { try { return localStorage.getItem('GHL_FD_THEME') || ''; } catch (e) { return ''; } })();
       // iPhone/iPad Safari: the toolbar floats over the page, so the app runs underneath it (other phones: no)
       var ua = navigator.userAgent || '';
@@ -714,7 +715,8 @@
         // Back led to the app) — the window's latest history entry was the app frame's. In the web-app window (not a Safari
         // tab) the front door adds its own entry once the app shows, so the window restores the front door; Back stays here.
         try {
-          if (document.documentElement.classList.contains('fd-standalone') && !window.__fdPushed) {
+          // Mac only: on iPhone, iOS turns this history step into a swipe-from-the-edge 'back' (it showed the old loading screen)
+          if (document.documentElement.classList.contains('fd-standalone') && !document.documentElement.classList.contains('fd-ios') && !window.__fdPushed) {
             window.__fdPushed = true;
             history.pushState({ fd: 1 }, '', location.href);
             window.addEventListener('popstate', function (ev) { if (!ev.state || !ev.state.fd) history.pushState({ fd: 1 }, '', location.href); });
