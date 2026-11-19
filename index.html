@@ -657,6 +657,33 @@
     if (window.visualViewport) window.visualViewport.addEventListener('resize', sendInset);
     setTimeout(sendInset, 0);
 
+    // 20 Nov 2026 (Mac: the window was blank after a night in the background until ⌘R — macOS had closed the app's frame to free
+    // memory). When the window comes back after being away 20 s or more, ask the app 'are you there?'; no answer within 2 s →
+    // reload only the app frame (the loading screen shows meanwhile). Apple's apps come back by themselves too.
+    (function () {
+      var awayAt = 0;
+      var reloadApp = function () {
+        var f = document.getElementById('app'); if (!f) return;
+        var h = document.documentElement; h.classList.remove('fd-ready'); h.classList.add('boot');
+        window.__fdAppWin = null; window.__fdShown = false;
+        var src = f.src; f.src = 'about:blank'; setTimeout(function () { f.src = src; }, 30);
+        setTimeout(hideBoot, 45000);
+      };
+      var check = function () {
+        if (!window.__fdShown) return;   // still starting: nothing to check
+        var w = window.__fdAppWin; if (!w) return reloadApp();
+        var p = window.__fdPing = { id: Math.random().toString(36).slice(2), ok: false };
+        try { w.postMessage({ type: 'ghl-ping', id: p.id }, window.__fdAppOrigin || '*'); } catch (x) { return reloadApp(); }
+        setTimeout(function () { if (window.__fdPing === p && !p.ok) reloadApp(); }, 2000);
+      };
+      var back = function () { if (awayAt && Date.now() - awayAt >= 20000) { awayAt = 0; check(); } else awayAt = 0; };
+      document.addEventListener('visibilitychange', function () { if (document.hidden) awayAt = Date.now(); else back(); });
+      window.addEventListener('blur', function () { if (!awayAt) awayAt = Date.now(); });
+      window.addEventListener('focus', back);
+      window.addEventListener('pageshow', function (e) { if (e.persisted) check(); });
+      window.__fdCheckApp = check;   // for testing
+    })();
+
     function hideBoot() {
       var h = document.documentElement;
       h.classList.remove('fd-launch');
@@ -678,6 +705,8 @@
       // only messages from the app itself (Google's script domains)
       if (!/^https:\/\/([a-z0-9-]+\.)*(script\.google\.com|googleusercontent\.com)$/.test(e.origin)) return;
       var d = e.data || {};
+      if (d.type && d.type !== 'ghl-pong') { window.__fdAppWin = e.source; window.__fdAppOrigin = e.origin; }
+      if (d.type === 'ghl-pong') { if (window.__fdPing && d.id === window.__fdPing.id) window.__fdPing.ok = true; return; }
       if (d.type === 'ghl-theme') {   // match the app's background, also behind the status bar and Safari's toolbar
         if (!/^#[0-9a-fA-F]{6}$/.test(d.bg || '')) return;
         // while the app is still loading it can report a passing theme (its own default before your saved choice arrives),
