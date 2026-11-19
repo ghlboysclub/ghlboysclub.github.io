@@ -662,11 +662,13 @@
     // reload only the app frame (the loading screen shows meanwhile). Apple's apps come back by themselves too.
     (function () {
       var awayAt = 0;
-      var reloadApp = function () {
+      var reloadApp = function (o) {
         var f = document.getElementById('app'); if (!f) return;
         var h = document.documentElement; h.classList.remove('fd-ready'); h.classList.add('boot');
+        if (o && o.logo) h.classList.add('fd-logo');   // an update: the launch screen (logo), not a loading screen of another page
         window.__fdAppWin = null; window.__fdShown = false;
         var src = f.src, go = function () { if (go.done) return; go.done = true; f.src = 'about:blank'; setTimeout(function () { f.src = src; }, 30); };
+        if (o && o.known) { window.__fdLatestP = null; go(); setTimeout(hideBoot, 45000); return; }   // the app already knows and saved the new version
         // 20 Nov 2026: ask the doorbell for the current version again first, so the app restarts straight on the new version
         try { window.__fdLatest = null; fetch('https://ghl-boys-club-bell-default-rtdb.firebaseio.com/appv/a.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; })
           .then(function (v) { window.__fdLatest = /^[0-9a-f]{64}$/.test(String(v || '')) ? v : ''; }).catch(function () { window.__fdLatest = ''; }).then(go); } catch (x) { window.__fdLatest = ''; go(); }
@@ -691,6 +693,7 @@
 
     function hideBoot() {
       var h = document.documentElement;
+      if (h.classList.contains('fd-logo') && h.classList.contains('boot')) { h.classList.add('fd-logo-out'); setTimeout(function () { h.classList.remove('fd-logo', 'fd-logo-out'); }, 320); }
       h.classList.remove('fd-launch');
       if (!h.classList.contains('boot') || h.classList.contains('fd-ready')) return;
       h.classList.add('fd-ready');
@@ -711,7 +714,13 @@
       if (!/^https:\/\/([a-z0-9-]+\.)*(script\.google\.com|googleusercontent\.com)$/.test(e.origin)) return;
       var d = e.data || {};
       if (d.type && d.type !== 'ghl-pong') { window.__fdAppWin = e.source; window.__fdAppOrigin = e.origin; }
-      if (d.type === 'ghl-reload') { if (window.__fdReloadApp) window.__fdReloadApp(); return; }
+      if (d.type === 'ghl-reload') {
+        // 20 Nov 2026: Update Now — the app was already saved; restart with the launch screen (logo) and reopen where the person was
+        if (d.resume && typeof d.resume === 'object') window.__fdResume = { page: String(d.resume.page || '').slice(0, 40), sub: String(d.resume.sub || '').slice(0, 20) };
+        if (/^[0-9a-f]{64}$/.test(String(d.fp || ''))) { try { var lu0 = JSON.parse(localStorage.getItem('GHL_LAST_USER') || 'null'); if (lu0) { lu0.fp = d.fp; localStorage.setItem('GHL_LAST_USER', JSON.stringify(lu0)); } } catch (x) {} window.__fdLatest = d.fp; }
+        if (window.__fdReloadApp) window.__fdReloadApp(d.fp ? { logo: true, known: true } : null);
+        return;
+      }
       if (d.type === 'ghl-pong') { if (window.__fdPing && d.id === window.__fdPing.id) window.__fdPing.ok = true; return; }
       if (d.type === 'ghl-theme') {   // match the app's background, also behind the status bar and Safari's toolbar
         if (!/^#[0-9a-fA-F]{6}$/.test(d.bg || '')) return;
@@ -744,7 +753,7 @@
         try { lu = JSON.parse(localStorage.getItem('GHL_LAST_USER') || 'null'); } catch (err) {}
         if (lu && Date.now() - (lu.t || 0) > 30 * 24 * 3600 * 1000) lu = null;   // 30 days, like the device key
         var src = e.source, org = e.origin, sent = false;
-        var reply = function () { if (sent) return; sent = true; try { src.postMessage({ type: 'ghl-user', user: lu, latest: window.__fdLatest || '' }, org); } catch (err) {} };
+        var reply = function () { if (sent) return; sent = true; var rs = window.__fdResume || null; window.__fdResume = null; try { src.postMessage({ type: 'ghl-user', user: lu, latest: window.__fdLatest || '', resume: rs }, org); } catch (err) {} };
         if (window.__fdLatest !== null || !window.__fdLatestP) reply();
         else { window.__fdLatestP.then(reply, reply); setTimeout(reply, 1500); }   // 20 Nov: the first connection can take > 1 s on a phone
         return;
