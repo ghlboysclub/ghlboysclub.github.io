@@ -666,7 +666,11 @@
         var f = document.getElementById('app'); if (!f) return;
         var h = document.documentElement; h.classList.remove('fd-ready'); h.classList.add('boot');
         window.__fdAppWin = null; window.__fdShown = false;
-        var src = f.src; f.src = 'about:blank'; setTimeout(function () { f.src = src; }, 30);
+        var src = f.src, go = function () { if (go.done) return; go.done = true; f.src = 'about:blank'; setTimeout(function () { f.src = src; }, 30); };
+        // 20 Nov 2026: ask the doorbell for the current version again first, so the app restarts straight on the new version
+        try { window.__fdLatest = null; fetch('https://ghl-boys-club-bell-default-rtdb.firebaseio.com/appv/a.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (v) { window.__fdLatest = /^[0-9a-f]{64}$/.test(String(v || '')) ? v : ''; }).catch(function () { window.__fdLatest = ''; }).then(go); } catch (x) { window.__fdLatest = ''; go(); }
+        window.__fdLatestP = null; setTimeout(go, 2000);
         setTimeout(hideBoot, 45000);
       };
       var check = function () {
