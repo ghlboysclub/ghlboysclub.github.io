@@ -679,10 +679,7 @@
         if (o && o.logo) h.classList.add('fd-logo');   // an update: the launch screen (logo), not a loading screen of another page
         window.__fdAppWin = null; window.__fdShown = false;
         // 21 Nov 2026: a NEW frame replaces the old one — changing src added two back-history steps (iPhone edge swipe went back to the loading screen)
-        // 21 Nov 2026: reload IN PLACE without a history step (location.replace). Replacing the frame element (v577.83) left Safari on the Mac
-        // unable to scroll the new frame with the trackpad/mouse wheel (measured with Safari automation)
-        var src = f.src, go = function () { if (go.done) return; go.done = true;
-          try { f.contentWindow.location.replace(src); } catch (x) { var n = f.cloneNode(false); n.src = src; f.parentNode.replaceChild(n, f); } };
+        var src = f.src, go = function () { if (go.done) return; go.done = true; var n = f.cloneNode(false); n.src = src; f.parentNode.replaceChild(n, f); };
         if (o && o.known) { window.__fdLatestP = null; go(); setTimeout(hideBoot, 45000); return; }   // the app already knows and saved the new version
         // 20 Nov 2026: ask the doorbell for the current version again first, so the app restarts straight on the new version
         try { window.__fdLatest = null; fetch('https://ghl-boys-club-bell-default-rtdb.firebaseio.com/appv/a.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; })
