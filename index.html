@@ -254,6 +254,16 @@
     html.boot.fd-logo.fd-logo-out body::after { opacity: 0; transition: opacity .3s ease; }
     html.boot.fd-logo.fd-logo-out #bootScreen > * { opacity: 1; }
     #bootScreen > * { transition: opacity .3s ease; }
+    /* 20 Nov 2026: installing an update = the logo with a thin progress bar under it (Apple's update screen); straight to the app, no loading screen in between */
+    #fdUpd { position: fixed; z-index: 61; left: 50%; top: calc(46.3vh + 36.5px + 42px); width: 124px; height: 4px; margin-left: -62px; border-radius: 2px; overflow: hidden; pointer-events: none;
+      background: rgba(255,255,255,0.22); opacity: 0; transition: opacity .25s ease; }
+    #fdUpd i { display: block; height: 100%; width: 0; border-radius: 2px; background: #fff; }
+    html.fd-upd #fdUpd { opacity: 1; }
+    html.fd-upd.fd-upd-out #fdUpd { opacity: 0; }
+    html.fd-upd #bootScreen > * { opacity: 0 !important; }
+    @media (prefers-color-scheme: light) { #fdUpd { background: rgba(0,0,0,0.12); } #fdUpd i { background: #1d1d1f; } }
+    html[data-theme="light"] #fdUpd { background: rgba(0,0,0,0.12); } html[data-theme="light"] #fdUpd i { background: #1d1d1f; }
+    html[data-theme="dark"] #fdUpd { background: rgba(255,255,255,0.22); } html[data-theme="dark"] #fdUpd i { background: #fff; }
     html.boot.fd-logo #bootScreen > * { opacity: 0; }
     #bootScreen .bs-search, #bootScreen .bs-bolt { position: absolute !important; bottom: calc(14px + env(safe-area-inset-bottom) + var(--host-bottom, 0px)) !important; }
     html.boot.fd-ready #bootScreen { opacity: 0; }
@@ -703,8 +713,20 @@
       window.__fdReloadApp = reloadApp;   // the app asks for it when a newer version arrived before it was used
     })();
 
+    // 20 Nov 2026: the update bar — fills over the expected start time (eases off near the end), completes when the app is ready
+    window.fdUpdStart = function () {
+      var h = document.documentElement, bar = document.getElementById('fdUpd');
+      if (!bar) { bar = document.createElement('div'); bar.id = 'fdUpd'; bar.setAttribute('role', 'progressbar'); bar.setAttribute('aria-label', 'Installing update'); bar.innerHTML = '<i></i>'; document.body.appendChild(bar); }
+      var i = bar.firstChild; i.style.transition = 'none'; i.style.width = '4%'; h.classList.remove('fd-upd-out'); h.classList.add('fd-upd');
+      void i.offsetWidth; i.style.transition = 'width 7s cubic-bezier(.15,.7,.3,1)'; i.style.width = '90%';
+    };
     function hideBoot() {
       var h = document.documentElement;
+      if (h.classList.contains('fd-upd') && !hideBoot.fin) {   // finish the bar first, then show the app
+        hideBoot.fin = true; var bi = document.querySelector('#fdUpd i'); if (bi) { bi.style.transition = 'width .3s ease-out'; bi.style.width = '100%'; }
+        setTimeout(function () { h.classList.add('fd-upd-out'); hideBoot(); setTimeout(function () { h.classList.remove('fd-upd', 'fd-upd-out'); hideBoot.fin = false; }, 400); }, 380);
+        return;
+      }
       if (h.classList.contains('fd-logo') && h.classList.contains('boot')) { h.classList.add('fd-logo-out'); setTimeout(function () { h.classList.remove('fd-logo', 'fd-logo-out'); }, 320); }
       h.classList.remove('fd-launch');
       if (!h.classList.contains('boot') || h.classList.contains('fd-ready')) return;
@@ -730,7 +752,7 @@
         // 20 Nov 2026: Update Now — the app was already saved; restart with the launch screen (logo) and reopen where the person was
         if (d.resume && typeof d.resume === 'object') window.__fdResume = { page: String(d.resume.page || '').slice(0, 40), sub: String(d.resume.sub || '').slice(0, 20) };
         if (/^[0-9a-f]{64}$/.test(String(d.fp || ''))) { try { var lu0 = JSON.parse(localStorage.getItem('GHL_LAST_USER') || 'null'); if (lu0) { lu0.fp = d.fp; localStorage.setItem('GHL_LAST_USER', JSON.stringify(lu0)); } } catch (x) {} window.__fdLatest = d.fp; }
-        if (window.__fdReloadApp) window.__fdReloadApp(d.fp ? { logo: true, known: true } : null);
+        if (window.__fdReloadApp) { window.__fdReloadApp(d.fp ? { logo: true, known: true } : null); if (d.fp && window.fdUpdStart) window.fdUpdStart(); }
         return;
       }
       if (d.type === 'ghl-pong') { if (window.__fdPing && d.id === window.__fdPing.id) window.__fdPing.ok = true; return; }
